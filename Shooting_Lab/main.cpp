@@ -142,7 +142,7 @@ void axes()
 
     // X-axis
     glPushMatrix();
-  //  glTranslatef(length/2,0,0);
+    //  glTranslatef(length/2,0,0);
     glTranslatef(0,.5,0);
     glScalef(length,width,width);
     cube(1,0,0);
@@ -150,7 +150,7 @@ void axes()
 
     // Y-axis
     glPushMatrix();
-  //  glTranslatef(0,length/2,0);
+    //  glTranslatef(0,length/2,0);
     glTranslatef(0,0,0);
     glScalef(width,length,width);
     cube(0,1,0);
@@ -189,13 +189,13 @@ void flr()
     glPopMatrix();
 
 ///far wall
-   // glEnable(GL_TEXTURE_2D);
+    // glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-30,0,25);
     glScalef(60,20,.3);
     cube(0.000, 0.749, 1.000);
     glPopMatrix();
-   // glDisable(GL_TEXTURE_2D);
+    // glDisable(GL_TEXTURE_2D);
 ///left wall
     glEnable(GL_TEXTURE_2D);
     glPushMatrix();
@@ -221,13 +221,13 @@ void flr()
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 ///roof
-   // glEnable(GL_TEXTURE_2D);
+    // glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-30,20,-25);
     glScalef(60,.3,50);
     cube(0.741, 0.718, 0.420);
     glPopMatrix();
-  //  glDisable(GL_TEXTURE_2D);
+    //  glDisable(GL_TEXTURE_2D);
 ///border line
     glEnable(GL_TEXTURE_2D);
     glPushMatrix();
@@ -241,62 +241,62 @@ void flr()
 void player()
 {
     ///leg
-  //  glEnable(GL_TEXTURE_2D);
+    //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-1,0,-23.3);
     glScalef(.75,5.5,.25);
     cube(0.000, 0.000, 0.545);
     glPopMatrix();
-  //  glDisable(GL_TEXTURE_2D);
+    //  glDisable(GL_TEXTURE_2D);
 
-  //  glEnable(GL_TEXTURE_2D);
+    //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(1.3,0,-23.3);
     glScalef(.75,5.5,.25);
     cube(0.000, 0.000, 0.545);
     glPopMatrix();
-   // glDisable(GL_TEXTURE_2D);
-   ///shoe
-     //  glEnable(GL_TEXTURE_2D);
+    // glDisable(GL_TEXTURE_2D);
+    ///shoe
+    //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-1.2,.5,-23);
     glScalef(1,1,.1);
     cube(0,0,0);
     glPopMatrix();
-  //  glDisable(GL_TEXTURE_2D);
+    //  glDisable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(1.2,.5,-23);
     glScalef(1,1,.1);
     cube(0,0,0);
     glPopMatrix();
-   // glDisable(GL_TEXTURE_2D);
+    // glDisable(GL_TEXTURE_2D);
 
 ///body
-  //  glEnable(GL_TEXTURE_2D);
+    //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-1,5,-23.7);
     glScalef(3,5,1);
     cube(0.467, 0.533, 0.600);
     glPopMatrix();
-  //  glDisable(GL_TEXTURE_2D);
-  ///head
+    //  glDisable(GL_TEXTURE_2D);
+    ///head
     //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-.25,10,-23.5);
     glScalef(1,1,1);
     cube(0.871, 0.722, 0.529);
     glPopMatrix();
-  //  glDisable(GL_TEXTURE_2D);
-  ///hair
-       //  glEnable(GL_TEXTURE_2D);
+    //  glDisable(GL_TEXTURE_2D);
+    ///hair
+    //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-.25,10.85,-23.45);
     glScalef(1,.3,1);
     cube(0,0,0);
     glPopMatrix();
-  //  glDisable(GL_TEXTURE_2D);
+    //  glDisable(GL_TEXTURE_2D);
 
-  ///hand
+    ///hand
     glPushMatrix();
     glTranslatef(-1.3,7,-23.7);
     glScalef(.3,2.5,.3);
@@ -378,7 +378,7 @@ static void display(void)
 
     flr();
     glPushMatrix();
-   // glRotatef(-rot, 0,1,0);
+    // glRotatef(-rot, 0,1,0);
     glTranslatef(axis_x,0,0);
     player();
     glPopMatrix();
@@ -389,7 +389,7 @@ static void display(void)
     crosair();
     glPopMatrix();
 
-   // axes();
+    // axes();
 
     glPushMatrix();
     light(-30);
@@ -474,10 +474,10 @@ static void key(unsigned char key, int x, int y)
     case '4':
         spt_cutoff--;
         break;
-        case 't':
+    case 't':
         cut=!cut;
         break;
-        case 'v':
+    case 'v':
         bit=!bit;
         break;
 
@@ -491,8 +491,8 @@ void animate()
     if (bRotate == true)
     {
         theta += 0.5;
-     /*   if(theta > 360.0)
-            theta -= 360.0*floor(theta/360.0); */
+        /*   if(theta > 360.0)
+               theta -= 360.0*floor(theta/360.0); */
     }
     if(uRotate==true)
     {
@@ -507,7 +507,7 @@ void animate()
             Rotate=!Rotate;
     }
     if(cut==true) spt_cutoff=0,l_on=false;
-        else spt_cutoff=87,l_on=true;
+    else spt_cutoff=87,l_on=true;
 
     if(bit==true) bita+=.2;
 
