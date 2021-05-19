@@ -25,7 +25,7 @@ bool l_on = true;
 
 GLfloat eyeX = 1.75;
 GLfloat eyeY = 8;
-GLfloat eyeZ = -23;
+GLfloat eyeZ = -24;
 
 GLfloat lookX = 1.5;
 GLfloat lookY = 10;
@@ -174,7 +174,7 @@ void crosair()
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(.23,7.15,-10);
+    glTranslatef(.25,7.15,-10);
     glScalef(.5,.2,.2);
     cube(1.000, 0.000, 0.000);
     glPopMatrix();
@@ -378,12 +378,14 @@ static void display(void)
 
     flr();
     glPushMatrix();
-    glRotatef(-rot, 0,1,0);
+   // glRotatef(-rot, 0,1,0);
+    glTranslatef(axis_x,0,0);
     player();
     glPopMatrix();
 
     glPushMatrix();
-    glRotatef(-rot, 0,1,0);
+    glTranslatef(axis_x,0,0);
+    //glRotatef(-rot, 0,1,0);
     crosair();
     glPopMatrix();
 
@@ -443,13 +445,13 @@ static void key(unsigned char key, int x, int y)
         up++;
         break;
 
-    case 'r':
-    case 'R':
-        bRotate = !bRotate;
-        theta=0;
-        //uRotate = false;
-        axis_x=0.0;
-        axis_y=-0.001;
+    case 'x':
+    case 'X':
+        axis_x-=1;
+        break;
+    case 'z':
+    case 'Z':
+        axis_x+=1;
         break;
     case '-':
         Tzval+=0.2;
