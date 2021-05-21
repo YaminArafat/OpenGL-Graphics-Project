@@ -12,12 +12,12 @@ using namespace std;
 const int width = 1000;
 const int height = 1000;
 double Txval=0,Tyval=0,Tzval=0;
-GLfloat alpha = 0.0,win=0.0, theta = 0.0,bita=0.0, axis_x=0.0, axis_y=0.0;
+GLfloat alpha = 0.0,win=0.0, theta = 0.0,bita=0.0, axis_x=0.0, axis_y=0.0,c=0.4;
 GLboolean bRotate = false, uRotate = false, Rotate = false,cut = false, bit=false;
 const float rat = 1.0 * width / height;
 unsigned int ID;
 
-float l_height = 19;
+float l_height = 20.50;
 float spt_cutoff = 87;
 float rot = 0,up= 0;
 
@@ -98,7 +98,7 @@ void set_mat_prop(float colR=0.5, float colG=0.5, float colB=0.5, bool em=false,
 }
 
 
-void cube(float colR=0.5, float colG=0.5, float colB=0.5,
+void cube(float colR=1, float colG=1, float colB=1,
           bool em=false, float shine=128)
 {
     set_mat_prop(colR,colG,colB,em,shine);
@@ -110,13 +110,13 @@ void cube(float colR=0.5, float colG=0.5, float colB=0.5,
                     v_cube[c_ind[i][1]][0], v_cube[c_ind[i][1]][1], v_cube[c_ind[i][1]][2],
                     v_cube[c_ind[i][2]][0], v_cube[c_ind[i][2]][1], v_cube[c_ind[i][2]][2]);
 
-        glTexCoord2f(0,2);
+        glTexCoord2f(0,1);
         glVertex3fv(&v_cube[c_ind[i][0]][0]);
         glTexCoord2f(0,0);
         glVertex3fv(&v_cube[c_ind[i][1]][0]);
-        glTexCoord2f(2,0);
+        glTexCoord2f(1,0);
         glVertex3fv(&v_cube[c_ind[i][2]][0]);
-        glTexCoord2f(2,2);
+        glTexCoord2f(1,1);
         glVertex3fv(&v_cube[c_ind[i][3]][0]);
     }
     glEnd();
@@ -142,7 +142,7 @@ void axes()
 
     // X-axis
     glPushMatrix();
-    //  glTranslatef(length/2,0,0);
+  //  glTranslatef(length/2,0,0);
     glTranslatef(0,.5,0);
     glScalef(length,width,width);
     cube(1,0,0);
@@ -150,7 +150,7 @@ void axes()
 
     // Y-axis
     glPushMatrix();
-    //  glTranslatef(0,length/2,0);
+  //  glTranslatef(0,length/2,0);
     glTranslatef(0,0,0);
     glScalef(width,length,width);
     cube(0,1,0);
@@ -168,7 +168,7 @@ void axes()
 void crosair()
 {
     glPushMatrix();
-    glTranslatef(.40,7,-10);
+    glTranslatef(c,7,-10);
     glScalef(.2,.5,.2);
     cube(1.000, 0.000, 0.000);
     glPopMatrix();
@@ -178,6 +178,12 @@ void crosair()
     glScalef(.5,.2,.2);
     cube(1.000, 0.000, 0.000);
     glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(c,7.15,-10);
+    glScalef(.1,.1,.1);
+    cube(1.000, 0.000, 0.000);
+    glPopMatrix();
 }
 
 void flr()
@@ -185,19 +191,21 @@ void flr()
     glPushMatrix();
     glTranslatef(-30,0,-25);
     glScalef(60,.3,50);
-    cube(1.000, 0.627, 0.478);
+    cube(.5, 0.627, 0.478);
     glPopMatrix();
 
 ///far wall
-    // glEnable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,5);
     glPushMatrix();
     glTranslatef(-30,0,25);
     glScalef(60,20,.3);
-    cube(0.000, 0.749, 1.000);
+    cube();
     glPopMatrix();
-    // glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
 ///left wall
     glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,3);
     glPushMatrix();
     glTranslatef(30,0,-25);
     glScalef(.3,20,50);
@@ -206,6 +214,7 @@ void flr()
     glDisable(GL_TEXTURE_2D);
 ///r8 wall
     glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,1);
     glPushMatrix();
     glTranslatef(-30,0,-25);
     glScalef(.3,20,50);
@@ -214,6 +223,7 @@ void flr()
     glDisable(GL_TEXTURE_2D);
 ///near wall
     glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,4);
     glPushMatrix();
     glTranslatef(-30,0,-25);
     glScalef(60,20,.3);
@@ -221,82 +231,89 @@ void flr()
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 ///roof
-    // glEnable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,6);
     glPushMatrix();
     glTranslatef(-30,20,-25);
     glScalef(60,.3,50);
-    cube(0.741, 0.718, 0.420);
+    cube();
     glPopMatrix();
-    //  glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
 ///border line
     glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,2);
     glPushMatrix();
     glTranslatef(-20,0,-20);
-    glScalef(40,5,2);
+    glScalef(40,4.5,1);
     cube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 
 }
+
+void bot()
+{
+
+}
 void player()
 {
     ///leg
-    //  glEnable(GL_TEXTURE_2D);
+  //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-1,0,-23.3);
     glScalef(.75,5.5,.25);
     cube(0.000, 0.000, 0.545);
     glPopMatrix();
-    //  glDisable(GL_TEXTURE_2D);
+  //  glDisable(GL_TEXTURE_2D);
 
-    //  glEnable(GL_TEXTURE_2D);
+  //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(1.3,0,-23.3);
     glScalef(.75,5.5,.25);
     cube(0.000, 0.000, 0.545);
     glPopMatrix();
-    // glDisable(GL_TEXTURE_2D);
-    ///shoe
-    //  glEnable(GL_TEXTURE_2D);
+   // glDisable(GL_TEXTURE_2D);
+   ///shoe
+     //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-1.2,.5,-23);
     glScalef(1,1,.1);
     cube(0,0,0);
     glPopMatrix();
-    //  glDisable(GL_TEXTURE_2D);
+  //  glDisable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(1.2,.5,-23);
     glScalef(1,1,.1);
     cube(0,0,0);
     glPopMatrix();
-    // glDisable(GL_TEXTURE_2D);
+   // glDisable(GL_TEXTURE_2D);
 
 ///body
-    //  glEnable(GL_TEXTURE_2D);
+  //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-1,5,-23.7);
     glScalef(3,5,1);
     cube(0.467, 0.533, 0.600);
     glPopMatrix();
-    //  glDisable(GL_TEXTURE_2D);
-    ///head
+  //  glDisable(GL_TEXTURE_2D);
+  ///head
     //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-.25,10,-23.5);
     glScalef(1,1,1);
     cube(0.871, 0.722, 0.529);
     glPopMatrix();
-    //  glDisable(GL_TEXTURE_2D);
-    ///hair
-    //  glEnable(GL_TEXTURE_2D);
+  //  glDisable(GL_TEXTURE_2D);
+  ///hair
+       //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(-.25,10.85,-23.45);
     glScalef(1,.3,1);
     cube(0,0,0);
     glPopMatrix();
-    //  glDisable(GL_TEXTURE_2D);
+  //  glDisable(GL_TEXTURE_2D);
 
-    ///hand
+  ///hand
     glPushMatrix();
     glTranslatef(-1.3,7,-23.7);
     glScalef(.3,2.5,.3);
@@ -378,7 +395,7 @@ static void display(void)
 
     flr();
     glPushMatrix();
-    // glRotatef(-rot, 0,1,0);
+   // glRotatef(-rot, 0,1,0);
     glTranslatef(axis_x,0,0);
     player();
     glPopMatrix();
@@ -389,7 +406,7 @@ static void display(void)
     crosair();
     glPopMatrix();
 
-    // axes();
+   // axes();
 
     glPushMatrix();
     light(-30);
@@ -430,11 +447,11 @@ static void key(unsigned char key, int x, int y)
         break;
     case 'A':
     case 'a':
-        rot++;
+        rot--;
         break;
     case 'D':
     case 'd':
-        rot--;
+        rot++;
         break;
     case 'W':
     case 'w':
@@ -474,10 +491,10 @@ static void key(unsigned char key, int x, int y)
     case '4':
         spt_cutoff--;
         break;
-    case 't':
+        case 't':
         cut=!cut;
         break;
-    case 'v':
+        case 'v':
         bit=!bit;
         break;
 
@@ -491,8 +508,8 @@ void animate()
     if (bRotate == true)
     {
         theta += 0.5;
-        /*   if(theta > 360.0)
-               theta -= 360.0*floor(theta/360.0); */
+     /*   if(theta > 360.0)
+            theta -= 360.0*floor(theta/360.0); */
     }
     if(uRotate==true)
     {
@@ -507,7 +524,7 @@ void animate()
             Rotate=!Rotate;
     }
     if(cut==true) spt_cutoff=0,l_on=false;
-    else spt_cutoff=87,l_on=true;
+        else spt_cutoff=87,l_on=true;
 
     if(bit==true) bita+=.2;
 
@@ -527,7 +544,12 @@ int main(int argc, char *argv[])
 
     glutCreateWindow("Texture-Demo");
 
-    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\brick.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall1.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\brick1.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall3.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall4.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall5.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall6.bmp");
 
 
     glutKeyboardFunc(key);
