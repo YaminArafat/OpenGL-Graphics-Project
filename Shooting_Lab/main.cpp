@@ -12,8 +12,8 @@ using namespace std;
 const int width = 1000;
 const int height = 1000;
 double Txval=0,Tyval=0,Tzval=0;
-GLfloat alpha = 0.0,win=0.0, theta = 0.0,bita=0.0, axis_x=0.0, axis_y=0.0,c=0.4;
-GLboolean bRotate = false, uRotate = false, Rotate = false,cut = false, bit=false;
+GLfloat alpha = 0.0,win=0.0, theta = 0.0, axis_x=0.0, axis_y=0.0,c=0.4;
+GLboolean fire = false,flag1 = false,flag2 = false,flag3 = false;
 const float rat = 1.0 * width / height;
 unsigned int ID;
 
@@ -23,9 +23,9 @@ float rot = 0,up= 0;
 
 bool l_on = true;
 
-GLfloat eyeX = 1.75;
-GLfloat eyeY = 8;
-GLfloat eyeZ = -24;
+GLfloat eyeX = 0;
+GLfloat eyeY = 12;
+GLfloat eyeZ = -26.5;
 
 GLfloat lookX = 1.5;
 GLfloat lookY = 10;
@@ -251,8 +251,16 @@ void flr()
 
 }
 
-void bot()
+void bot(float pos_x,float pos_y,float pos_z)
 {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,7);
+    glPushMatrix();
+    glTranslatef(pos_x,pos_y,pos_z);
+    glScalef(5,12,.3);
+    cube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 
 }
 void player()
@@ -299,7 +307,7 @@ void player()
   ///head
     //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(-.25,10,-23.5);
+    glTranslatef(-.05,10,-23.5);
     glScalef(1,1,1);
     cube(0.871, 0.722, 0.529);
     glPopMatrix();
@@ -307,7 +315,7 @@ void player()
   ///hair
        //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(-.25,10.85,-23.45);
+    glTranslatef(-.05,10.85,-23.45);
     glScalef(1,.3,1);
     cube(0,0,0);
     glPopMatrix();
@@ -406,6 +414,40 @@ static void display(void)
     crosair();
     glPopMatrix();
 
+    glPushMatrix();
+    if(fire&& -2.5<= axis_x && -2.5+5<=axis_x )
+    {
+        glRotatef(-90, 1,0,0);
+        flag1=true;
+    }
+    if(flag1)
+        glRotatef(-90, 1,0,0);
+    bot(-2.5,0,23);
+    glPopMatrix();
+
+    glPushMatrix();
+        if(fire&& 10<= axis_x && 10+5<=axis_x )
+    {
+        glRotatef(90, 1,0,0);
+        flag2=true;
+       // fire = false;
+    }
+    if(flag2)
+        glRotatef(90, 1,0,0);
+    bot(10,0,20);
+    glPopMatrix();
+
+    glPushMatrix();
+        if(fire&& -15<= axis_x && -15+5<=axis_x )
+    {
+        glRotatef(90, 1,0,0);
+        flag3=true;
+       // fire = false;
+    }
+    if(flag3)
+        glRotatef(90, 1,0,0);
+    bot(-15,0,20);
+    glPopMatrix();
    // axes();
 
     glPushMatrix();
@@ -477,26 +519,17 @@ static void key(unsigned char key, int x, int y)
     case '+':
         Tzval-=0.2;
         break;
+    case 'f':
+    case 'F':
+        if(fire)
+        fire=false;
+        else fire = true;
+    case 'r':
+    case 'R':
+        flag1=false;
+        flag2=false;
+        flag3=false;
 
-    case '1':
-        l_height++;
-        break;
-    case '2':
-        l_height--;
-        break;
-
-    case '3':
-        spt_cutoff++;
-        break;
-    case '4':
-        spt_cutoff--;
-        break;
-        case 't':
-        cut=!cut;
-        break;
-        case 'v':
-        bit=!bit;
-        break;
 
     }
 
@@ -505,28 +538,7 @@ static void key(unsigned char key, int x, int y)
 
 void animate()
 {
-    if (bRotate == true)
-    {
-        theta += 0.5;
-     /*   if(theta > 360.0)
-            theta -= 360.0*floor(theta/360.0); */
-    }
-    if(uRotate==true)
-    {
-        win+=0.2;
-        if(win > 90.0)
-            uRotate= !uRotate;
-    }
-    if(Rotate==true)
-    {
-        win-=0.2;
-        if(win<=0)
-            Rotate=!Rotate;
-    }
-    if(cut==true) spt_cutoff=0,l_on=false;
-        else spt_cutoff=87,l_on=true;
 
-    if(bit==true) bita+=.2;
 
     glutPostRedisplay();
 
@@ -550,6 +562,7 @@ int main(int argc, char *argv[])
     LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall4.bmp");
     LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall5.bmp");
     LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall6.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\bot1.bmp");
 
 
     glutKeyboardFunc(key);
