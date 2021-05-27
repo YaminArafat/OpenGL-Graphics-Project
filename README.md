@@ -1,4 +1,3 @@
-# OpenGL-Graphics-Project
-hi it's me abir
+# OpenGL-Graphics-Project with GLUT Library in C++
 
-Shooting Lab is a OpenGl library based simlulation game for practicing aim. 
+Motrtal Shooting is a OpenGl's GLUT library based single player shooting game to get perfect aim badge after completing some given objectives/tasks. 
