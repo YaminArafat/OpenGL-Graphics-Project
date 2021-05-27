@@ -12,20 +12,20 @@ using namespace std;
 const int width = 1000;
 const int height = 1000;
 double Txval=0,Tyval=0,Tzval=0;
-GLfloat alpha = 0.0,win=0.0, theta = 0.0, axis_x=0.0, axis_y=0.0,c=0.4;
-GLboolean fire = false,flag1 = false,flag2 = false,flag3 = false;
+GLfloat alpha = 0.0,win=0.0, theta = 0.0, axis_x=0.0, axis_y=0.5,axis_z = -90.0,c=0.4;
+GLboolean fire = false,flag1 = false,flag2 = false,flag3 = false,flag4 = false,flag5 = false,cut = false,jump = false, Njump = false;
 const float rat = 1.0 * width / height;
 unsigned int ID;
 
-float l_height = 20.50;
-float spt_cutoff = 87;
+float l_height = 100.50;
+float spt_cutoff = 90;
 float rot = 0,up= 0;
 
 bool l_on = true;
 
 GLfloat eyeX = 0;
-GLfloat eyeY = 12;
-GLfloat eyeZ = -26.5;
+GLfloat eyeY = 15;
+GLfloat eyeZ = -120.5;
 
 GLfloat lookX = 1.5;
 GLfloat lookY = 10;
@@ -186,20 +186,103 @@ void crosair()
     glPopMatrix();
 }
 
-void flr()
+void wall()
 {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,11);
     glPushMatrix();
-    glTranslatef(-30,0,-25);
-    glScalef(60,.3,50);
-    cube(.5, 0.627, 0.478);
+    glTranslatef(-80,0,-80);
+    glScalef(2,30,140);
+    cube();
     glPopMatrix();
 
+    glPushMatrix();
+    glTranslatef(-80,0,60);
+    glScalef(20,30,2);
+    cube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-80,0,-80);
+    glScalef(60,30,2);
+    cube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(10,0,-140);
+    glScalef(2,30,80);
+    cube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-20,0,-140);
+    glScalef(2,30,60);
+    cube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+}
+void flr()
+{
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,9);
+    glPushMatrix();
+    glTranslatef(-60,0,-60);
+    glScalef(120,.3,120);
+    cube(.5, 0.627, 0.478);
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+///field
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,8);
+    glPushMatrix();
+    glTranslatef(-1000,-.5,-1000);
+    glScalef(2000,.3,2000);
+    cube(.5, 0.627, 0.478);
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+///far wall field
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,10);
+    glPushMatrix();
+    glTranslatef(-1000,0,1000);
+    glScalef(2000,100,.3);
+    cube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+///far left field
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,6);
+    glPushMatrix();
+    glTranslatef(1000,0,-1000);
+    glScalef(.3,100,2000);
+    cube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+///far r8 field
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,6);
+    glPushMatrix();
+    glTranslatef(-1000,0,-1000);
+    glScalef(.3,100,2000);
+    cube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+///far near field
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,6);
+    glPushMatrix();
+    glTranslatef(-1000,0,-1000);
+    glScalef(2000,100,.3);
+    cube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 ///far wall
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,5);
     glPushMatrix();
-    glTranslatef(-30,0,25);
-    glScalef(60,20,.3);
+    glTranslatef(-60,0,60);
+    glScalef(120,30,.3);
     cube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -207,8 +290,8 @@ void flr()
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,3);
     glPushMatrix();
-    glTranslatef(30,0,-25);
-    glScalef(.3,20,50);
+    glTranslatef(60,0,-60);
+    glScalef(.3,30,120);
     cube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -216,8 +299,8 @@ void flr()
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,1);
     glPushMatrix();
-    glTranslatef(-30,0,-25);
-    glScalef(.3,20,50);
+    glTranslatef(-60,0,-50);
+    glScalef(.3,30,110);
     cube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -225,8 +308,8 @@ void flr()
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,4);
     glPushMatrix();
-    glTranslatef(-30,0,-25);
-    glScalef(60,20,.3);
+    glTranslatef(-60,0,-60);
+    glScalef(120,30,.3);
     cube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -234,8 +317,8 @@ void flr()
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,6);
     glPushMatrix();
-    glTranslatef(-30,20,-25);
-    glScalef(60,.3,50);
+    glTranslatef(-1000,100,-1000);
+    glScalef(2000,.3,2000);
     cube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -243,8 +326,8 @@ void flr()
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,2);
     glPushMatrix();
-    glTranslatef(-20,0,-20);
-    glScalef(40,4.5,1);
+    glTranslatef(-20,0,-30);
+    glScalef(40,2.5,1);
     cube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -366,7 +449,7 @@ static void res(int width, int height)
 
 void light(float x=0.0)
 {
-    //GLfloat no_light[] = { 0.0, 0.0, 0.0, 1.0 };
+    GLfloat no_light[] = { 0.0, 0.0, 0.0, 1.0 };
     GLfloat light_ambient[]  = {1.0, 1.0, 1.0, 1.0};
     GLfloat light_diffuse[]  = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -374,14 +457,20 @@ void light(float x=0.0)
 
     glEnable( GL_LIGHT0);
 
-    glLightfv( GL_LIGHT0, GL_AMBIENT, light_ambient);
-    glLightfv( GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-    glLightfv( GL_LIGHT0, GL_SPECULAR, light_specular);
-    glLightfv( GL_LIGHT0, GL_POSITION, light_position);
+    if(l_on) glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+    else glLightfv(GL_LIGHT0, GL_AMBIENT, no_light);
+    if(l_on) glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    else glLightfv(GL_LIGHT0, GL_DIFFUSE, no_light);
+    if(l_on) glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    else glLightfv(GL_LIGHT0, GL_SPECULAR, no_light);
 
-    /*GLfloat spot_direction[] = { 0.0, -1.0, 0.0 };
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+    GLfloat spot_direction[] = { 0.0, -1.0, 0.0 };
+    GLfloat spt_ct[] = {spt_cutoff};
     glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
-    glLightf( GL_LIGHT0, GL_SPOT_CUTOFF, 10.0);*/
+    glLightfv( GL_LIGHT0, GL_SPOT_CUTOFF, spt_ct);
+
 }
 
 static void display(void)
@@ -389,44 +478,45 @@ static void display(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustum(-10, 10, -10, 10, 3.0, 500.0);
+    glFrustum(-10, 10, -10, 10, 3.0, 2000.0);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(eyeX,eyeY,eyeZ, lookX,lookY,lookZ, 0,1,0);
     //glViewport(0, 0, width, height);
 
-    glTranslatef(0,0,Tzval);
+    glTranslatef(-axis_x,0,Tzval);
     glRotatef(up, 1,0,0);
     glRotatef(rot, 0,1,0);
 
 
+    wall();
     flr();
     glPushMatrix();
-   // glRotatef(-rot, 0,1,0);
-    glTranslatef(axis_x,0,0);
+    //glRotatef(-rot, 0,1,0);
+    glTranslatef(axis_x,axis_y,axis_z);
     player();
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(axis_x,0,0);
+    glTranslatef(axis_x,0,axis_z+10);
     //glRotatef(-rot, 0,1,0);
     crosair();
     glPopMatrix();
 
     glPushMatrix();
-    if(fire&& -2.5<= axis_x && -2.5+5<=axis_x )
+    if(fire&& -2.5<= axis_x && -2.5+5>=axis_x )
     {
-        glRotatef(-90, 1,0,0);
+        glRotatef(90, 1,0,0);
         flag1=true;
     }
     if(flag1)
-        glRotatef(-90, 1,0,0);
+        glRotatef(90, 1,0,0);
     bot(-2.5,0,23);
     glPopMatrix();
 
     glPushMatrix();
-        if(fire&& 10<= axis_x && 10+5<=axis_x )
+        if(fire&& 10<= axis_x && 10+5>=axis_x )
     {
         glRotatef(90, 1,0,0);
         flag2=true;
@@ -438,7 +528,7 @@ static void display(void)
     glPopMatrix();
 
     glPushMatrix();
-        if(fire&& -15<= axis_x && -15+5<=axis_x )
+        if(fire&& -15<= axis_x && -15+5>=axis_x )
     {
         glRotatef(90, 1,0,0);
         flag3=true;
@@ -448,7 +538,31 @@ static void display(void)
         glRotatef(90, 1,0,0);
     bot(-15,0,20);
     glPopMatrix();
-   // axes();
+
+    glPushMatrix();
+    if(fire&& -70<= axis_x && -70+5>=axis_x )
+    {
+        glRotatef(90, 1,0,0);
+        flag4=true;
+       // fire = false;
+    }
+    if(flag4)
+        glRotatef(90, 1,0,0);
+    bot(-70,0,20);
+    glPopMatrix();
+
+    glPushMatrix();
+    if(fire&& -10<= axis_x && -10+5>=axis_x )
+    {
+        glRotatef(-90, 1,0,0);
+        flag5=true;
+       // fire = false;
+    }
+    if(flag5)
+        glRotatef(-90, 1,0,0);
+    bot(-10,0,-70);
+    glPopMatrix();
+    //axes();
 
     glPushMatrix();
     light(-30);
@@ -489,11 +603,11 @@ static void key(unsigned char key, int x, int y)
         break;
     case 'A':
     case 'a':
-        rot--;
+        rot++;
         break;
     case 'D':
     case 'd':
-        rot++;
+        rot--;
         break;
     case 'W':
     case 'w':
@@ -504,14 +618,33 @@ static void key(unsigned char key, int x, int y)
         up++;
         break;
 
-    case 'x':
-    case 'X':
+    case 'l':
+    case 'L':
         axis_x-=1;
         break;
-    case 'z':
-    case 'Z':
+    case 'j':
+    case 'J':
         axis_x+=1;
         break;
+    case 'k':
+    case 'K':
+        axis_z-=1;
+        Tzval+=1;
+        break;
+    case 'i':
+    case 'I':
+        axis_z+=1;
+        Tzval-=1;
+        break;
+    case 'h':
+    case 'H':
+        jump=!jump;
+        break;
+    case 'b':
+    case 'B':
+        Njump=!Njump;
+        break;
+
     case '-':
         Tzval+=0.2;
         break;
@@ -519,16 +652,42 @@ static void key(unsigned char key, int x, int y)
     case '+':
         Tzval-=0.2;
         break;
+        case 'x':
+        eyeX-=0.2;
+        break;
+
+    case 'z':
+        eyeX+=0.2;
+        break;
     case 'f':
     case 'F':
-        if(fire)
-        fire=false;
-        else fire = true;
+        fire=!fire;
+
+        break;
     case 'r':
     case 'R':
         flag1=false;
         flag2=false;
         flag3=false;
+        flag4 = false;
+        flag5 = false;
+        break;
+    case '1':
+        l_height++;
+        break;
+    case '2':
+        l_height--;
+        break;
+
+    case '3':
+        spt_cutoff++;
+        break;
+    case '4':
+        spt_cutoff--;
+        break;
+        case 't':
+        cut=!cut;
+        break;
 
 
     }
@@ -538,7 +697,23 @@ static void key(unsigned char key, int x, int y)
 
 void animate()
 {
+    if(jump)
+    {
+        for(int i=0;i<20;i++)
+            axis_y+=.1;
+        jump=!jump;
 
+    }
+        if(Njump)
+    {
+        for(int i=0;i<20;i++)
+            axis_y-=.1;
+        Njump=!Njump;
+
+    }
+
+    if(cut==true) spt_cutoff=0,l_on=false;
+        else spt_cutoff=90,l_on=true;
 
     glutPostRedisplay();
 
@@ -556,13 +731,17 @@ int main(int argc, char *argv[])
 
     glutCreateWindow("Texture-Demo");
 
-    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall1.bmp");
-    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\brick1.bmp");
-    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall3.bmp");
-    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall4.bmp");
-    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall5.bmp");
-    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\wall6.bmp");
-    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\Aim_lab\\Shooting_Lab\\bot1.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\wall1.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\brick2.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\wall3.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\wall4.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\wall5.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\wall6.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\bot1.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\sand.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\floor.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\wall10.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\brick.bmp");
 
 
     glutKeyboardFunc(key);
