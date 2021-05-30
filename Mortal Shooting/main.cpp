@@ -8,18 +8,18 @@
 #include "include/BmpLoader.h"
 const int windowWidth = 800;
 const int windowHeight = 800;
-GLfloat eyeX = 100;//21.5;//50;
-GLfloat eyeY = 15;//25;//50;
-GLfloat eyeZ = 100;//5;//100;
+GLfloat eyeX = 150;//21.5;//50;
+GLfloat eyeY = 50;//25;//50;
+GLfloat eyeZ = 300;//5;//100;
 
-GLfloat lookX = 100;//21.5;//50;
+GLfloat lookX = 150;//21.5;//50;
 GLfloat lookY = 50;//40;//50;
 GLfloat lookZ = 0;//30;//0;
 unsigned int ID;
 bool light1= true, light2 = true, light3 =true;
 bool ambient =true, diffuse = true, specular = true;
-float movex=0,movex2=0,movex3=0,movex4=0,movex5=0;
-bool on=true,on2=true,on3=true,on4=true,on5=true;
+double movex[15];//movex=0,movex2=0,movex3=0,movex4=0,movex5=0;
+bool on=true,on2=true,on3=true,on4=true,on5=true,on6=true,on7=true,on8=true,on9=true;
 static GLfloat v_cube[8][3] =
 {
     {0.0, 0.0, 0.0},
@@ -146,39 +146,39 @@ static void resize(int width, int height)
 static void house(void)
 {
 /// legs
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,9);
-    for(double i=3.5; i<40.0; i+=12)
-    {
-        for(double j=5; j<40; j+=10)
-        {
-            glPushMatrix();
-            glTranslatef(i,0,j);
-            glScalef(2.0, 10.5, 2.0);
-            drawCube();
-            glPopMatrix();
-        }
-    }
-    glDisable(GL_TEXTURE_2D);
+//    glEnable(GL_TEXTURE_2D);
+//    glBindTexture(GL_TEXTURE_2D,9);
+//    for(double i=3.5; i<40.0; i+=12)
+//    {
+//        for(double j=5; j<40; j+=10)
+//        {
+//            glPushMatrix();
+//            glTranslatef(i,0,j);
+//            glScalef(2.0, 10.5, 2.0);
+//            drawCube();
+//            glPopMatrix();
+//        }
+//    }
+//    glDisable(GL_TEXTURE_2D);
 /// Stairs
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,3);
-    glPushMatrix();
-    glTranslatef(21.5,0.0,40.0);
-    glScalef(15.0, 3.0, 4.0);
-    drawCube();
-    glPopMatrix();
-    glPushMatrix();
-    glTranslatef(21.5,3.0,39.0);
-    glScalef(15.0, 4.0, 4.0);
-    drawCube(0.1,0.9,0.2);
-    glPopMatrix();
-    glPushMatrix();
-    glTranslatef(21.5,7.0,38.0);
-    glScalef(15.0, 3.0, 4.0);
-    drawCube(1,0,1);
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
+//    glEnable(GL_TEXTURE_2D);
+//    glBindTexture(GL_TEXTURE_2D,3);
+//    glPushMatrix();
+//    glTranslatef(21.5,0.0,40.0);
+//    glScalef(15.0, 3.0, 4.0);
+//    drawCube();
+//    glPopMatrix();
+//    glPushMatrix();
+//    glTranslatef(21.5,3.0,39.0);
+//    glScalef(15.0, 4.0, 4.0);
+//    drawCube(0.1,0.9,0.2);
+//    glPopMatrix();
+//    glPushMatrix();
+//    glTranslatef(21.5,7.0,38.0);
+//    glScalef(15.0, 3.0, 4.0);
+//    drawCube(1,0,1);
+//    glPopMatrix();
+//    glDisable(GL_TEXTURE_2D);
 /// Floor
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,4);
@@ -297,68 +297,85 @@ static void house(void)
 }
 static void traing(void)
 {
-    glPushMatrix();
-    glTranslated(57.5,0,10);
-    glScalef(141.5, 0.5, 1.0);
-    drawCube();
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(57.5,0,20);
-    glScalef(141.5, 0.5, 1.0);
-    drawCube();
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(57.5,0,30);
-    glScalef(141.5, 0.5, 1.0);
-    drawCube();
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(57.5,0,40);
-    glScalef(141.5, 0.5, 1.0);
-    drawCube();
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslated(57.5,0,50);
-    glScalef(141.5, 0.5, 1.0);
-    drawCube();
-    glPopMatrix();
-
+    for (double i=10; i<=90; i+=10)
+    {
+        glPushMatrix();
+        glTranslated(165,0,i);
+        glScalef(135, 0.5, 1.0);
+        drawCube();
+        glPopMatrix();
+    }
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,12);
-    glPushMatrix();
-    glTranslatef(57.5+movex,0,10);
-    glScalef(15, 15, 0.5);
-    drawCube();
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslatef(75+movex2,0,20);
-    glScalef(15, 15, 0.5);
-    drawCube();
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslatef(100+movex3,0,30);
-    glScalef(15, 15, 0.5);
-    drawCube();
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslatef(125+movex4,0,40);
-    glScalef(15, 15, 0.5);
-    drawCube();
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslatef(150+movex5,0,50);
-    glScalef(15, 15, 0.5);
-    drawCube();
-    glPopMatrix();
+    for (double i=10,j=165; i<=50; i+=10,j+=30)
+    {
+        glPushMatrix();
+        glTranslated(j+movex[(int)((int)i/10)],0,i);
+        glScalef(15, 15, 0.5);
+        drawCube();
+        glPopMatrix();
+    }
+    for (double i=60,j=270; i<=90; i+=10,j-=30)
+    {
+        glPushMatrix();
+        glTranslated(j+movex[(int)((int)i/10)],0,i);
+        glScalef(15, 15, 0.5);
+        drawCube();
+        glPopMatrix();
+    }
     glDisable(GL_TEXTURE_2D);
+    for (double i=10; i<=100; i+=10)
+    {
+        glPushMatrix();
+        glTranslated(165,0,i);
+        glScalef(1, 40, 1);
+        drawCube();
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslated(165,30,i);
+        glScalef(10, 10, 0.5);
+        drawCube();
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslated(299,0,i);
+        glScalef(1, 40, 1);
+        drawCube();
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslated(290,30,i);
+        glScalef(10, 10, 0.5);
+        drawCube();
+        glPopMatrix();
+    }
+
+    glPushMatrix();
+    glTranslatef(190,0,150);
+    glScalef(85,10,5);
+    drawCube();
+    glPopMatrix();
+
+    for(double i=211.25; i<275; i+=21.25)
+    {
+        glPushMatrix();
+        glTranslatef(i,0,190);
+        glScalef(1,9,1);
+        drawCube();
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(i-5,9,185);
+        glScalef(10,1,10);
+        drawCube();
+        glPopMatrix();
+    }
+    glPushMatrix();
+    glTranslatef(190,0,220);
+    glScalef(85,20,1);
+    drawCube();
+    glPopMatrix();
 }
 static void MAP(void)
 {
@@ -367,11 +384,11 @@ static void MAP(void)
     glBindTexture(GL_TEXTURE_2D,1);
     glPushMatrix();
     glTranslatef(0,-1,0);
-    glScalef(200.0, 1.0, 100.0);
+    glScalef(300.0, 1.0, 300.0);
     drawCube(1,1,1);
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
-///// Left Wall
+/// Left Wall
 //    glEnable(GL_TEXTURE_2D);
 //    glBindTexture(GL_TEXTURE_2D,9);
 //    glPushMatrix();
@@ -380,29 +397,29 @@ static void MAP(void)
 //    glPopMatrix();
 //    glDisable(GL_TEXTURE_2D);
 /// Front Wall
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,10);
-    glPushMatrix();
-    //glTranslatef(0,0,0);
-    glScalef(200.0, 100.0, 1.0);
-    drawCube();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
+//    glEnable(GL_TEXTURE_2D);
+//    glBindTexture(GL_TEXTURE_2D,10);
+//    glPushMatrix();
+//    //glTranslatef(0,0,0);
+//    glScalef(200.0, 100.0, 1.0);
+//    drawCube();
+//    glPopMatrix();
+//    glDisable(GL_TEXTURE_2D);
 /// Right Wall
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,10);
-    glPushMatrix();
-    glTranslatef(199, 0, 0);
-    glScalef(1.0, 100.0, 100.0);
-    drawCube();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
+//    glEnable(GL_TEXTURE_2D);
+//    glBindTexture(GL_TEXTURE_2D,10);
+//    glPushMatrix();
+//    glTranslatef(199, 0, 0);
+//    glScalef(1.0, 100.0, 100.0);
+//    drawCube();
+//    glPopMatrix();
+//    glDisable(GL_TEXTURE_2D);
 /// Roof
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,11);
     glPushMatrix();
-    glTranslatef(0, 100, 0);
-    glScalef(200.0, 1.0, 100.0);
+    glTranslatef(-100, 100, -100);
+    glScalef(500.0, 1.0, 500.0);
     drawCube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -410,8 +427,8 @@ static void MAP(void)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,7);
     glPushMatrix();
-    glTranslatef(42.5,0,0);
-    glScalef(15.0, 0.5, 100.0);
+    glTranslatef(135,0,0);
+    glScalef(30.0, 0.5, 300.0);
     drawCube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -419,8 +436,8 @@ static void MAP(void)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,8);
     glPushMatrix();
-    glTranslatef(0,0,43);
-    glScalef(42.5, 0.5, 15.0);
+    glTranslatef(0,0,135);
+    glScalef(135, 0.5, 30.0);
     drawCube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -430,11 +447,22 @@ static void MAP(void)
 //    drawCube();
 //    glPopMatrix();
     //glDisable(GL_TEXTURE_2D);
-//    glPushMatrix();
-//    glTranslatef(1,-5,2);
+    glPushMatrix();
+    glTranslatef(0,-10,0);
 //    glScalef(0.5,0.5,0.5);
     house();
-    //glPopMatrix();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0,-10,60);
+    house();
+    glPopMatrix();
+
+//    glPushMatrix();
+//    glTranslatef(300,-10,250);
+//    glRotatef(180,0,1,0);
+//    house();
+//    glPopMatrix();
 }
 static void display(void)
 {
@@ -546,7 +574,6 @@ static void idle(void)
 {
     glutPostRedisplay();
 }
-
 
 static void light()
 {
@@ -665,94 +692,164 @@ static void light()
     glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot_direction);
     glLightf( GL_LIGHT2, GL_SPOT_CUTOFF, 60.0);
 }
-
 /* Program entry point */
 void animate()
 {
-        if(movex<127 && on)
+    {
+        if(movex[1]<120 && on)
         {
-            movex+=0.1;
+            movex[1]+=0.1;
         }
-        else if (movex>=127)
+        else if (movex[1]>=120)
         {
             on=false;
         }
-        if(movex>0 && !on)
+        if(movex[1]>0 && !on)
         {
-            movex-=0.1;
+            movex[1]-=0.1;
         }
-        else if(movex<=0)
+        else if(movex[1]<=0)
         {
             on=true;
         }
 
-        if(movex2<109 && on2)
+        if(movex[2]<90 && on2)
         {
-            movex2+=0.1;
+            movex[2]+=0.1;
         }
-        else if (movex>=109)
+        else if (movex[2]>=90)
         {
             on2=false;
         }
-        if(movex2>-17.5 && !on2)
+        if(movex[2]>-30 && !on2)
         {
-            movex2-=0.1;
+            movex[2]-=0.1;
         }
-        else if(movex2<=-17.5)
+        else if(movex[2]<=-30)
         {
             on2=true;
         }
 
-        if(movex3<84 && on3)
+        if(movex[3]<60 && on3)
         {
-            movex3+=0.1;
+            movex[3]+=0.1;
         }
-        else if (movex3>=84)
+        else if (movex[3]>=60)
         {
             on3=false;
         }
-        if(movex3>-42.5 && !on3)
+        if(movex[3]>-60 && !on3)
         {
-            movex3-=0.1;
+            movex[3]-=0.1;
         }
-        else if(movex3<=-42.5)
+        else if(movex[3]<=-60)
         {
             on3=true;
         }
 
-        if(movex4<60 && on4)
+        if(movex[4]<30 && on4)
         {
-            movex4+=0.1;
+            movex[4]+=0.1;
         }
-        else if (movex4>=60)
+        else if (movex[4]>=30)
         {
             on4=false;
         }
-        if(movex4>-67.5 && !on4)
+        if(movex[4]>-90 && !on4)
         {
-            movex4-=0.1;
+            movex[4]-=0.1;
         }
-        else if(movex4<=-67.5)
+        else if(movex[4]<=-90)
         {
             on4=true;
         }
 
-        if(movex5<35 && on5)
+        if(movex[5]<0 && on5)
         {
-            movex5+=0.1;
+            movex[5]+=0.1;
         }
-        else if (movex5>=35)
+        else if (movex[5]>=0)
         {
             on5=false;
         }
-        if(movex5>-92.5 && !on5)
+        if(movex[5]>-120 && !on5)
         {
-            movex5-=0.1;
+            movex[5]-=0.1;
         }
-        else if(movex5<=-92.5)
+        else if(movex[5]<=-120)
         {
             on5=true;
         }
+
+        if(movex[6]<15 && on6)
+        {
+            movex[6]+=0.1;
+        }
+        else if (movex[6]>=15)
+        {
+            on6=false;
+        }
+        if(movex[6]>-105 && !on6)
+        {
+            movex[6]-=0.1;
+        }
+        else if(movex[6]<=-105)
+        {
+            on6=true;
+        }
+
+        if(movex[7]<45 && on7)
+        {
+            movex[7]+=0.1;
+        }
+        else if (movex[7]>=45)
+        {
+            on7=false;
+        }
+        if(movex[7]>-75 && !on7)
+        {
+            movex[7]-=0.1;
+        }
+        else if(movex[7]<=-75)
+        {
+            on7=true;
+        }
+
+        if(movex[8]<75 && on8)
+        {
+            movex[8]+=0.1;
+        }
+        else if (movex[8]>=75)
+        {
+            on8=false;
+        }
+        if(movex[8]>-45 && !on8)
+        {
+            movex[8]-=0.1;
+        }
+        else if(movex[8]<=-45)
+        {
+            on8=true;
+        }
+
+        if(movex[9]<105 && on9)
+        {
+            movex[9]+=0.1;
+        }
+        else if (movex[9]>=105)
+        {
+            on9=false;
+        }
+        if(movex[9]>-15 && !on9)
+        {
+            movex[9]-=0.1;
+        }
+        else if(movex[9]<=-15)
+        {
+            on9=true;
+        }
+    }
+
 //    if (flagrotate == true)
 //    {
 //        rotMin+= 0.02;
@@ -782,7 +879,7 @@ int main(int argc, char *argv[])
     glutInitWindowPosition(10,10);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-    glutCreateWindow("Shooting Lab");
+    glutCreateWindow("Mortal Shooting");
 
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\ground5.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\wall7.bmp");
