@@ -1,8 +1,13 @@
 # depslib dependency file v1.0
-1446667744 source:f:\study\4.2\graphics_project\mortal shooting\main.cpp
-	<GLUT/glut.h>
+1622423063 source:f:\study\4.2\graphics_project\mortal shooting\main.cpp
+	<GL/gl.h>
+	<GL/glu.h>
 	<GL/glut.h>
 	<stdlib.h>
+	<stdio.h>
+	<windows.h>
+	<math.h>
+	"include/BmpLoader.h"
 
 976692172 c:\program files (x86)\codeblocks\mingw\include\gl\glut.h
 	<windows.h>
@@ -236,4 +241,7 @@
 1341006780 c:\program files (x86)\codeblocks\mingw\include\sys\types.h
 	<_mingw.h>
 	<stddef.h>
+
+1341006774 c:\program files (x86)\codeblocks\mingw\include\math.h
+	<_mingw.h>
 

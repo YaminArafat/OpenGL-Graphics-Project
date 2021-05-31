@@ -8,18 +8,18 @@
 #include "include/BmpLoader.h"
 const int windowWidth = 800;
 const int windowHeight = 800;
-GLfloat eyeX = 150;//21.5;//50;
+GLfloat eyeX = 300;//21.5;//50;
 GLfloat eyeY = 50;//25;//50;
-GLfloat eyeZ = 300;//5;//100;
+GLfloat eyeZ = 150;//300;//5;//100;
 
-GLfloat lookX = 150;//21.5;//50;
+GLfloat lookX = 0;//21.5;//50;
 GLfloat lookY = 50;//40;//50;
-GLfloat lookZ = 0;//30;//0;
+GLfloat lookZ = 150;//30;//0;
 unsigned int ID;
 bool light1= true, light2 = true, light3 =true;
 bool ambient =true, diffuse = true, specular = true;
 double movex[15];//movex=0,movex2=0,movex3=0,movex4=0,movex5=0;
-bool on=true,on2=true,on3=true,on4=true,on5=true,on6=true,on7=true,on8=true,on9=true;
+bool on=true,on2=true,on3=true,on4=true,on5=true,on6=true,on7=true,on8=true,on9=true,view=true;
 static GLfloat v_cube[8][3] =
 {
     {0.0, 0.0, 0.0},
@@ -142,7 +142,99 @@ static void resize(int width, int height)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity() ;
 }
+static void player(void)
+{
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,19);
+    glPushMatrix();
+    glTranslatef(0,16,0);
+    glScalef(3,10,3);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,20);
+    glPushMatrix();
+    glTranslatef(0,9,1);
+    glScalef(1,6,1);
+    drawCube();
+    glPopMatrix();
+
+    ///{
+    //glPushMatrix();
+    //glTranslatef(0,0,-2);
+    //glRotatef(10,1,0,0);
+    glPushMatrix();
+    glTranslatef(2,9,1);
+    glScalef(1,6,1);
+    drawCube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(2,1,1);
+    glScalef(1,7,1);
+    drawCube();
+    glPopMatrix();
+    //glPopMatrix();
+    ///}
+
+    glPushMatrix();
+    glTranslatef(0,1,1);
+    glScalef(1,7,1);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+    glPushMatrix();
+    glTranslatef(0,0,-2);
+    glScalef(1,1,3);
+    drawCube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(2,0,-2);
+    glScalef(1,1,3);
+    drawCube();
+    glPopMatrix();
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,19);
+    glPushMatrix();
+    glTranslatef(-2,21,0);
+    glScalef(1,5,1);
+    drawCube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(4,21,0);
+    glScalef(1,5,1);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,21);
+    glPushMatrix();
+    glTranslatef(-2,13,0);
+    glScalef(1,7,1);
+    drawCube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(4,13,0);
+    glScalef(1,7,1);
+    drawCube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0.5,27,0.5);
+    glScalef(2,3,2);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+}
 static void house(void)
 {
 /// legs
@@ -229,7 +321,7 @@ static void house(void)
     glDisable(GL_TEXTURE_2D);
 /// Door
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,3);
+    glBindTexture(GL_TEXTURE_2D,15);
     glPushMatrix();
     glTranslatef(21.5,10,40);
     glRotatef(90,0,1,0);
@@ -254,7 +346,7 @@ static void house(void)
     glDisable(GL_TEXTURE_2D);
 /// Window
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,3);
+    glBindTexture(GL_TEXTURE_2D,15);
     glPushMatrix();
     glTranslatef(40.5, 28, 11);
     glRotatef(-90,0,1,0);
@@ -281,29 +373,32 @@ static void house(void)
     glBindTexture(GL_TEXTURE_2D,5);
     glPushMatrix();
     glTranslatef(1.5, 60, 0);
-    glRotatef(30,0,0,1);
-    glScalef(22, 1.0, 42.0);
+    glRotatef(33,0,0,1);
+    glScalef(26, 1.0, 42.0);
     drawCube();
     glPopMatrix();
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,6);
     glPushMatrix();
-    glTranslatef(41.5, 60, 0);
-    glRotatef(150,0,0,1);
-    glScalef(24, 1.0, 42.0);
+    glTranslatef(41.5, 61, 0);
+    glRotatef(145,0,0,1);
+    glScalef(22.5, 1.0, 42.0);
     drawCube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 }
-static void traing(void)
+static void train_ground(void)
 {
     for (double i=10; i<=90; i+=10)
     {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,9);
         glPushMatrix();
         glTranslated(165,0,i);
         glScalef(135, 0.5, 1.0);
-        drawCube();
+        drawCube(1,1,1);
         glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
     }
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,12);
@@ -326,6 +421,8 @@ static void traing(void)
     glDisable(GL_TEXTURE_2D);
     for (double i=10; i<=100; i+=10)
     {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,3);
         glPushMatrix();
         glTranslated(165,0,i);
         glScalef(1, 40, 1);
@@ -333,11 +430,23 @@ static void traing(void)
         glPopMatrix();
 
         glPushMatrix();
-        glTranslated(165,30,i);
+        glTranslated(165,39.5,i);
+        glScalef(i-5, 0.5, 0.5);
+        drawCube();
+        glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
+
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,13);
+        glPushMatrix();
+        glTranslated(165+i-5,30,i);
         glScalef(10, 10, 0.5);
         drawCube();
         glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
 
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,3);
         glPushMatrix();
         glTranslated(299,0,i);
         glScalef(1, 40, 1);
@@ -345,37 +454,91 @@ static void traing(void)
         glPopMatrix();
 
         glPushMatrix();
-        glTranslated(290,30,i);
+        glTranslated(299-105+i,39.5,i);
+        glScalef(105-i, 0.5, 0.5);
+        drawCube();
+        glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
+
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,13);
+        glPushMatrix();
+        glTranslated(299-105+i-7.5,30,i);
         glScalef(10, 10, 0.5);
         drawCube();
         glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
     }
 
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,9);
     glPushMatrix();
-    glTranslatef(190,0,150);
+    glTranslatef(190,0,140);
     glScalef(85,10,5);
     drawCube();
     glPopMatrix();
-
-    for(double i=211.25; i<275; i+=21.25)
+    glDisable(GL_TEXTURE_2D);
+    for(double i=211.25,k=16; i<275; i+=21.25)
     {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,3);
         glPushMatrix();
-        glTranslatef(i,0,190);
+        glTranslatef(i,0,170);
         glScalef(1,9,1);
         drawCube();
         glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
 
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,k++);
         glPushMatrix();
-        glTranslatef(i-5,9,185);
+        glTranslatef(i-5,9,165);
         glScalef(10,1,10);
         drawCube();
         glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
     }
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,14);
     glPushMatrix();
-    glTranslatef(190,0,220);
-    glScalef(85,20,1);
+    glTranslatef(195,0,200);
+    glScalef(75,30,1);
     drawCube();
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,15);
+    glPushMatrix();
+    glTranslatef(190,30,200);
+    glRotatef(-45,1,0,0);
+    glScalef(85,30,1);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,9);
+        glPushMatrix();
+        glTranslatef(195,0,180);
+        glScalef(1,53,1);
+        drawCube();
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(195+37.5,0,180);
+        glScalef(1,53,1);
+        drawCube();
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(195+37.5+37.5,0,180);
+        glScalef(1,53,1);
+        drawCube();
+        glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
+    }
 }
 static void MAP(void)
 {
@@ -388,6 +551,7 @@ static void MAP(void)
     drawCube(1,1,1);
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
+    {
 /// Left Wall
 //    glEnable(GL_TEXTURE_2D);
 //    glBindTexture(GL_TEXTURE_2D,9);
@@ -414,6 +578,7 @@ static void MAP(void)
 //    drawCube();
 //    glPopMatrix();
 //    glDisable(GL_TEXTURE_2D);
+    }
 /// Roof
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,11);
@@ -449,20 +614,25 @@ static void MAP(void)
     //glDisable(GL_TEXTURE_2D);
     glPushMatrix();
     glTranslatef(0,-10,0);
-//    glScalef(0.5,0.5,0.5);
+    glScalef(1,0.6,1);
     house();
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(0,-10,60);
+    glTranslatef(0,-10,135);
+    glRotatef(90,0,1,0);
+    glScalef(1,0.6,1);
     house();
     glPopMatrix();
 
-//    glPushMatrix();
-//    glTranslatef(300,-10,250);
-//    glRotatef(180,0,1,0);
-//    house();
-//    glPopMatrix();
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,10);
+    glPushMatrix();
+    glTranslatef(0,0,235);
+    glScalef(60,70,60);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 }
 static void display(void)
 {
@@ -479,8 +649,12 @@ static void display(void)
     glViewport(0, 0, windowHeight, windowWidth);
 
     MAP();
-    traing();
+    train_ground();
 
+    glPushMatrix();
+    glTranslatef(230,0,155);
+    player();
+    glPopMatrix();
     glutSwapBuffers();
 }
 
@@ -565,6 +739,9 @@ static void key(unsigned char key, int x, int y)
     case 'c':
         specular = !specular;
         break;
+    case 'v':
+        view=!view;
+        break;
     }
 
     glutPostRedisplay();
@@ -582,7 +759,7 @@ static void light()
     GLfloat light_ambient[]  = {0.3, 0.3, 0.3, 1.0};
     GLfloat light_diffuse[]  = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat light_position[] = { 199,99,50, 1.0 };
+    GLfloat light_position[] = { 298,99,150, 1.0 };
 
     if(ambient)
     {
@@ -618,7 +795,7 @@ static void light()
     GLfloat light_ambient2[]  = {0.5, 0.5, 0.5, 1.0};
     GLfloat light_diffuse2[]  = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat light_specular2[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat light_position2[] = { 0,99,50, 1.0 };
+    GLfloat light_position2[] = { 0,99,150, 1.0 };
 
     if(ambient)
     {
@@ -654,7 +831,7 @@ static void light()
     GLfloat light_ambient3[]  = {0.5, 0.3, 0.7, 1.0};
     GLfloat light_diffuse3[]  = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat light_specular3[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat light_position3[] = { 100, 99, 50, 1.0 };
+    GLfloat light_position3[] = { 230, 100, 160, 1.0 };
 
     //glEnable( GL_LIGHT2);
     if(ambient)
@@ -849,7 +1026,6 @@ void animate()
             on9=true;
         }
     }
-
 //    if (flagrotate == true)
 //    {
 //        rotMin+= 0.02;
@@ -881,18 +1057,31 @@ int main(int argc, char *argv[])
 
     glutCreateWindow("Mortal Shooting");
 
-    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\ground5.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\grass.bmp");
+
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\wall7.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\test2.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\bb2.bmp");
+
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\roof.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\roof2.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\road.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\road2.bmp");
+
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\leg1.bmp");
-    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\wall11.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\building2.bmp");
+
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\sky.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\target2.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\dart4.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\guns9.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\wood.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\guns6.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\guns3.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\equipm.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\shirt2.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\pant.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\skin3.bmp");
 
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
