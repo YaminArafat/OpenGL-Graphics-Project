@@ -8,17 +8,18 @@
 #include "include/BmpLoader.h"
 const int windowWidth = 800;
 const int windowHeight = 800;
-GLfloat eyeX = 300;//21.5;//50;
+GLfloat eyeX = 320;//21.5;//50;
 GLfloat eyeY = 50;//25;//50;
-GLfloat eyeZ = 150;//300;//5;//100;
+GLfloat eyeZ = 170;//300;//5;//100;
 
-GLfloat lookX = 0;//21.5;//50;
+GLfloat lookX = 100;//21.5;//50;
 GLfloat lookY = 50;//40;//50;
-GLfloat lookZ = 150;//30;//0;
+GLfloat lookZ = 80;//30;//0;
+GLfloat tmpx,tmpy,tmpz;
 unsigned int ID;
 bool light1= true, light2 = true, light3 =true;
 bool ambient =true, diffuse = true, specular = true;
-double movex[15];//movex=0,movex2=0,movex3=0,movex4=0,movex5=0;
+double movex[15],plx,plz,rot=0;//movex=0,movex2=0,movex3=0,movex4=0,movex5=0;
 bool on=true,on2=true,on3=true,on4=true,on5=true,on6=true,on7=true,on8=true,on9=true,view=true;
 static GLfloat v_cube[8][3] =
 {
@@ -144,6 +145,7 @@ static void resize(int width, int height)
 }
 static void player(void)
 {
+    glTranslatef(plx,0,plz);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,19);
     glPushMatrix();
@@ -647,7 +649,7 @@ static void display(void)
     gluLookAt(eyeX,eyeY,eyeZ, lookX,lookY,lookZ, 0,1,0);
 
     glViewport(0, 0, windowHeight, windowWidth);
-
+    glRotatef(rot,0,1,0);
     MAP();
     train_ground();
 
@@ -685,11 +687,11 @@ static void key(unsigned char key, int x, int y)
         eyeZ -= 0.5;
         break;
     case '+':
-
+        rot++;
         break;
 
     case '-':
-
+        rot--;
         break;
     case '1':
         if(light1)
@@ -740,7 +742,36 @@ static void key(unsigned char key, int x, int y)
         specular = !specular;
         break;
     case 'v':
-        view=!view;
+        eyeX=230;
+        eyeY=30;
+        eyeZ=155;
+        lookX=230;
+        lookY=50;
+        lookZ=0;
+        break;
+    case 'b':
+        eyeX=320;
+        eyeY=50;
+        eyeZ=170;
+        lookX=100;
+        lookY=50;
+        lookZ=80;
+        break;
+    case 'l':
+        plx++;
+        //eyeX++;
+        break;
+    case 'j':
+        plx--;
+        //eyeX--;
+        break;
+    case 'i':
+        plz++;
+        //eyeZ++;
+        break;
+    case 'k':
+        plz--;
+        //eyeZ--;
         break;
     }
 

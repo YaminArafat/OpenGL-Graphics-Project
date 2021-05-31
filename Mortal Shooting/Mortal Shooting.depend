@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1622423063 source:f:\study\4.2\graphics_project\mortal shooting\main.cpp
+1622431893 source:f:\study\4.2\graphics_project\mortal shooting\main.cpp
 	<GL/gl.h>
 	<GL/glu.h>
 	<GL/glut.h>
