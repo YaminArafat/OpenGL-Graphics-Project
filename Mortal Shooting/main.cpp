@@ -668,6 +668,24 @@ static void key(unsigned char key, int x, int y)
     case 'q':
         exit(0);
         break;
+    case 't':
+        lookY += 1.5;
+        break;
+    case 'g':
+        lookY -= 1.5;
+        break;
+    case 'h':
+        lookX += 1.5;
+        break;
+    case 'f':
+        lookX -= 1.5;
+        break;
+    case 'u':
+        lookZ += 1.5;
+        break;
+    case 'y':
+        lookZ -= 1.5;
+        break;
     case 'w':
         eyeY += 0.5;
         break;
