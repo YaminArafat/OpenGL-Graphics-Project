@@ -6,8 +6,11 @@
 #include <windows.h>
 #include<math.h>
 #include "include/BmpLoader.h"
-const int windowWidth = 800;
-const int windowHeight = 800;
+#include <bits/stdc++.h>
+using namespace std;
+const int width = 800;
+const int height = 800;
+const float rat = 1.0 * width / height;
 GLfloat eyeX = 320;//21.5;//50;
 GLfloat eyeY = 50;//25;//50;
 GLfloat eyeZ = 170;//300;//5;//100;
@@ -15,11 +18,11 @@ GLfloat eyeZ = 170;//300;//5;//100;
 GLfloat lookX = 100;//21.5;//50;
 GLfloat lookY = 50;//40;//50;
 GLfloat lookZ = 80;//30;//0;
-GLfloat tmpx,tmpy,tmpz;
+GLfloat tmpx,tmpy,tmpz,m=0;
 unsigned int ID;
-bool light1= true, light2 = true, light3 =true;
+bool light1= true, light2 = true, light3 =true,p=false,M=false;
 bool ambient =true, diffuse = true, specular = true;
-double movex[15],plx,plz,rot=0;//movex=0,movex2=0,movex3=0,movex4=0,movex5=0;
+double movex[15],plx,plz,prot=0,fanim=0;//movex=0,movex2=0,movex3=0,movex4=0,movex5=0;
 bool on=true,on2=true,on3=true,on4=true,on5=true,on6=true,on7=true,on8=true,on9=true,view=true;
 static GLfloat v_cube[8][3] =
 {
@@ -61,6 +64,76 @@ static void getNormal3p
     Nz = Ux*Vy - Uy*Vx;
 
     glNormal3f(Nx,Ny,Nz);
+}
+//void my_mouse(int button, int state, int x, int y)
+//{
+//    switch (button)
+//    {
+//    case GLUT_LEFT_BUTTON:
+//        if (state == GLUT_DOWN)
+//        {
+//
+//        }
+//        //glutIdleFunc(spinDisplay_left);
+//        else if(state == GLUT_UP)
+//        {
+//
+//        }
+//            glutIdleFunc(NULL);
+//        break;
+//    case GLUT_RIGHT_BUTTON:
+//        if (state == GLUT_DOWN)
+//        {
+//
+//        }
+//        //glutIdleFunc(spinDisplay_right);
+//        else if(state == GLUT_UP)
+//        {
+//
+//        }
+//            glutIdleFunc(NULL);
+//        //glutIdleFunc(NULL); // make idle function inactive
+//        break;
+//    default:
+//        break;
+//    }
+//}
+void drawtree(int n)
+{
+    if(n>0)
+    {
+    //////////////////////////
+    //stack of matrices
+     glPushMatrix();
+
+     glTranslatef(100,30.0,50);
+     glRotatef(45, 0.0, 0.0, 1.0);
+
+     // 1/sqrt(2)=0.707
+     glScalef(0.707,0.707,0.707);
+
+     //recursion
+     drawtree(n-1);
+
+     glPopMatrix();
+    ////////////////////////////
+
+     glPushMatrix();
+     glTranslatef(-100,30.0,50);
+     glRotatef(-45, 0.0, 0.0, 1.0);
+     glScalef(0.707,0.707,0.707);
+     drawtree(n-1);
+     glPopMatrix();
+     //draw a cube
+     glutSolidCube(1);
+    }
+}
+
+void treeInit(int n)
+{
+    // draw a red tree
+   glColor3f(1.0, 0.0, 0.0);
+   drawtree(n);
 }
 
 void LoadTexture(const char*filename)
@@ -135,7 +208,7 @@ static void resize(int width, int height)
 {
     const float ar = (float) width / (float) height;
 
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, width, width/rat);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glFrustum(-ar, ar, -1.0, 1.0, 2.0, 150.0);
@@ -145,6 +218,7 @@ static void resize(int width, int height)
 }
 static void player(void)
 {
+    //glRotatef(prot,0,1,0);
     glTranslatef(plx,0,plz);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,19);
@@ -218,13 +292,17 @@ static void player(void)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,21);
     glPushMatrix();
-    glTranslatef(-2,13,0);
+    glTranslatef(-1.5,19,0);
+    glRotatef(250,1,0,0);
+    glRotatef(-360,0,1,0);
     glScalef(1,7,1);
     drawCube();
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(4,13,0);
+    glTranslatef(4,19,0);
+    glRotatef(250,1,0,0);
+    glRotatef(360,0,1,0);
     glScalef(1,7,1);
     drawCube();
     glPopMatrix();
@@ -236,6 +314,28 @@ static void player(void)
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 
+    glPushMatrix();
+    glRotatef(fanim,1,0,0);
+    glPushMatrix();
+    glTranslatef(1,20,-10);
+    glScalef(0.5,0.5,10);
+    drawCube();
+    glPopMatrix();
+    glPushMatrix();
+    //glTranslatef(1,20,-100);
+    glBegin(GL_LINES);
+    glColor3f(1,0,0);
+    glVertex3f(1.0f, 20.0f, -10.0f);
+    glVertex3f(1.0f, 12.0f, -110.0f);
+    glEnd();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(1,17.5,-7);
+    glRotatef(45,1,0,0);
+    glScalef(0.5,4,0.5);
+    drawCube();
+    glPopMatrix();
+    glPopMatrix();
 }
 static void house(void)
 {
@@ -407,7 +507,19 @@ static void train_ground(void)
     for (double i=10,j=165; i<=50; i+=10,j+=30)
     {
         glPushMatrix();
-        glTranslated(j+movex[(int)((int)i/10)],0,i);
+        if((j+movex[(int)((int)i/10)])>=225.5 && (j+movex[(int)((int)i/10)])<=237.5 && M)
+        {
+            glTranslatef(j+movex[(int)((int)i/10)],-16,i);
+        }
+        else
+        {
+            glTranslated(j+movex[(int)((int)i/10)],0,i);
+        }
+        if(p)
+        {
+            glTranslatef(0,16,0);
+            p=false;
+        }
         glScalef(15, 15, 0.5);
         drawCube();
         glPopMatrix();
@@ -416,12 +528,21 @@ static void train_ground(void)
     {
         glPushMatrix();
         glTranslated(j+movex[(int)((int)i/10)],0,i);
+        if((j+movex[(int)((int)i/10)])>=225.5 && (j+movex[(int)((int)i/10)])<=237.5 && M)
+        {
+            glTranslatef(0,-16,0);
+        }
+        if(p)
+        {
+            glTranslatef(0,16,0);
+            p=false;
+        }
         glScalef(15, 15, 0.5);
         drawCube();
         glPopMatrix();
     }
     glDisable(GL_TEXTURE_2D);
-    for (double i=10; i<=100; i+=10)
+    for (int i=10; i<=100; i+=10)
     {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D,3);
@@ -430,22 +551,26 @@ static void train_ground(void)
         glScalef(1, 40, 1);
         drawCube();
         glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(165,39.5,i);
-        glScalef(i-5, 0.5, 0.5);
-        drawCube();
-        glPopMatrix();
+        if((i/10)%2)
+        {
+            glPushMatrix();
+            glTranslated(165,39.5,i);
+            glScalef(i-5, 0.5, 0.5);
+            drawCube();
+            glPopMatrix();
+        }
         glDisable(GL_TEXTURE_2D);
-
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D,13);
-        glPushMatrix();
-        glTranslated(165+i-5,30,i);
-        glScalef(10, 10, 0.5);
-        drawCube();
-        glPopMatrix();
-        glDisable(GL_TEXTURE_2D);
+        if((i/10)%2)
+        {
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D,13);
+            glPushMatrix();
+            glTranslated(165+i-5,30,i);
+            glScalef(10, 10, 0.5);
+            drawCube();
+            glPopMatrix();
+            glDisable(GL_TEXTURE_2D);
+        }
 
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D,3);
@@ -454,22 +579,26 @@ static void train_ground(void)
         glScalef(1, 40, 1);
         drawCube();
         glPopMatrix();
-
-        glPushMatrix();
-        glTranslated(299-105+i,39.5,i);
-        glScalef(105-i, 0.5, 0.5);
-        drawCube();
-        glPopMatrix();
+        if((i/10)%2==0)
+        {
+            glPushMatrix();
+            glTranslated(299-105+i,39.5,i);
+            glScalef(105-i, 0.5, 0.5);
+            drawCube();
+            glPopMatrix();
+        }
         glDisable(GL_TEXTURE_2D);
-
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D,13);
-        glPushMatrix();
-        glTranslated(299-105+i-7.5,30,i);
-        glScalef(10, 10, 0.5);
-        drawCube();
-        glPopMatrix();
-        glDisable(GL_TEXTURE_2D);
+        if((i/10)%2==0)
+        {
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D,13);
+            glPushMatrix();
+            glTranslated(299-105+i-7.5,30,i);
+            glScalef(10, 10, 0.5);
+            drawCube();
+            glPopMatrix();
+            glDisable(GL_TEXTURE_2D);
+        }
     }
 
     glEnable(GL_TEXTURE_2D);
@@ -621,6 +750,12 @@ static void MAP(void)
     glPopMatrix();
 
     glPushMatrix();
+    glTranslatef(70,-10,0);
+    glScalef(1,0.6,1);
+    house();
+    glPopMatrix();
+
+    glPushMatrix();
     glTranslatef(0,-10,135);
     glRotatef(90,0,1,0);
     glScalef(1,0.6,1);
@@ -631,6 +766,11 @@ static void MAP(void)
     glBindTexture(GL_TEXTURE_2D,10);
     glPushMatrix();
     glTranslatef(0,0,235);
+    glScalef(60,70,60);
+    drawCube();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0,0,165);
     glScalef(60,70,60);
     drawCube();
     glPopMatrix();
@@ -648,8 +788,8 @@ static void display(void)
     glLoadIdentity();
     gluLookAt(eyeX,eyeY,eyeZ, lookX,lookY,lookZ, 0,1,0);
 
-    glViewport(0, 0, windowHeight, windowWidth);
-    glRotatef(rot,0,1,0);
+    //glRotatef(rot,0,1,0);
+    glTranslatef(-plx,0,-plz);
     MAP();
     train_ground();
 
@@ -657,6 +797,7 @@ static void display(void)
     glTranslatef(230,0,155);
     player();
     glPopMatrix();
+    //treeInit(15);
     glutSwapBuffers();
 }
 
@@ -705,11 +846,28 @@ static void key(unsigned char key, int x, int y)
         eyeZ -= 0.5;
         break;
     case '+':
-        rot++;
+        prot++;
+        //lookX-=5;
+        //eyeX-=5;
         break;
-
+    case 'm':
+        {
+            if(fanim)
+            {
+                if(fanim==.4)
+                    fanim=-.4;
+                else
+                    fanim=.4;
+            }
+            else
+                fanim=.4;
+        }
+        M=true;
+        break;
     case '-':
-        rot--;
+        prot--;
+        //lookX+=5;
+        //eyeX+=5;
         break;
     case '1':
         if(light1)
@@ -750,6 +908,10 @@ static void key(unsigned char key, int x, int y)
             light3 = true;
         }
         break;
+        case 'p':
+        p= true;
+        M=false;
+        break;
     case 'z':
         ambient = !ambient;
         break;
@@ -760,8 +922,8 @@ static void key(unsigned char key, int x, int y)
         specular = !specular;
         break;
     case 'v':
-        eyeX=230;
-        eyeY=30;
+        eyeX=233;
+        eyeY=21;
         eyeZ=155;
         lookX=230;
         lookY=50;
@@ -784,11 +946,11 @@ static void key(unsigned char key, int x, int y)
         //eyeX--;
         break;
     case 'i':
-        plz++;
+        plz--;
         //eyeZ++;
         break;
     case 'k':
-        plz--;
+        plz++;
         //eyeZ--;
         break;
     }
@@ -1100,7 +1262,7 @@ void animate()
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
-    glutInitWindowSize(640,480);
+    glutInitWindowSize(width,height);
     glutInitWindowPosition(10,10);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
@@ -1137,6 +1299,7 @@ int main(int argc, char *argv[])
     glutKeyboardFunc(key);
     glutIdleFunc(idle);
     glutIdleFunc(animate);
+    //glutMouseFunc(my_mouse);
     light();
 
     glShadeModel( GL_SMOOTH );

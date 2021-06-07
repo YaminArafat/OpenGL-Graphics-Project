@@ -42,7 +42,9 @@
 			<Add library="gdi32" />
 			<Add directory="C:/Program Files (x86)/CodeBlocks/MinGW/lib" />
 		</Linker>
+		<Unit filename="include/BmpLoader.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/BmpLoader.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
