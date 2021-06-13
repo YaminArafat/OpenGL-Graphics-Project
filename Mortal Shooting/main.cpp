@@ -1162,16 +1162,72 @@ static void copter(void)
 
 
 }
+static void buildstair(double k)
+{
+        glPushMatrix();
+        glPushMatrix();
+        glTranslatef(100.0,k,255.0);
+        //glRotatef(-30,1,0,0);
+        glScalef(1.0,1.0,30.0);
+        drawCube(0,0,0);
+        glPopMatrix();
 
+        for(double i=255;i<=285;i+=5)
+        {
+            glPushMatrix();
+            glTranslatef(100.0,k,i);
+            glScalef(4,1,1);
+            drawCube();
+            glPopMatrix();
+        }
+
+        glPushMatrix();
+        glTranslatef(104.0,k,255.0);
+        //glRotatef(-30,1,0,0);
+        glScalef(1.0,1.0,30.0);
+        drawCube(0,0,0);
+        glPopMatrix();
+        glRotatef(-30,1,0,0);
+        glPopMatrix();
+
+        glPushMatrix();
+        //glRotatef(-30,1,0,0);
+        glPushMatrix();
+        glTranslatef(105.0,k+30,255.0);
+        //glRotatef(30,1,0,0);
+        glScalef(1.0,1.0,30.0);
+        drawCube(0,0,0);
+        glPopMatrix();
+
+        for(double i=255;i<=285;i+=5)
+        {
+            glPushMatrix();
+            glTranslatef(105.0,k,i);
+            glScalef(4,1,1);
+            drawCube();
+            glPopMatrix();
+        }
+
+        glPushMatrix();
+        glTranslatef(109.0,k+30,255.0);
+        //glRotatef(30,1,0,0);
+        glScalef(1.0,1.0,30.0);
+        drawCube(0,0,0);
+        glPopMatrix();
+        glPopMatrix();
+}
 static void newbuild(void)
 {
+    double gg=0,kg=0;
     for(double i=0.0; i<=90.0; i+=30.0)
     {
 
 
-
+        gg=i;
+        kg=gg+18;
         if(i<90.0)
             {
+                ///flr
                 glPushMatrix();
         glTranslatef(80.0,i,240.0);
         glScalef(20.0,1.0,50.0);
@@ -1184,29 +1240,133 @@ static void newbuild(void)
         drawCube(1,1,1);
         glPopMatrix();
         glPushMatrix();
+        ///r8wall
         glTranslatef(80.0,i,240.0);
-        glScalef(1.0,30.0,50.0);
+        glScalef(1.0,30.0,10.0);
         drawCube(1,1,0);
         glPopMatrix();
-
+        glPushMatrix();
+        glTranslatef(80.0,i,250.0);
+        glScalef(1.0,10.0,10.0);
+        drawCube(1,1,0);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(80.0,i+20,250.0);
+        glScalef(1.0,10.0,10.0);
+        drawCube(1,1,0);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(80.0,i,260.0);
+        glScalef(1.0,30.0,10.0);
+        drawCube(1,1,0);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(80.0,i,270.0);
+        glScalef(1.0,10.0,10.0);
+        drawCube(1,1,0);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(80.0,i+20,270.0);
+        glScalef(1.0,10.0,10.0);
+        drawCube(1,1,0);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(80.0,i,280.0);
+        glScalef(1.0,30.0,10.0);
+        drawCube(1,1,0);
+        glPopMatrix();
+        ///leftwall
         glPushMatrix();
         glTranslatef(129.0,i,240.0);
-        glScalef(1.0,30.0,50.0);
+        glScalef(1.0,30.0,10.0);
         drawCube(1,0,1);
         glPopMatrix();
-
+        glPushMatrix();
+        glTranslatef(129.0,i,250.0);
+        glScalef(1.0,10.0,10.0);
+        drawCube(1,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(129.0,i+20,250.0);
+        glScalef(1.0,10.0,10.0);
+        drawCube(1,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(129.0,i,260.0);
+        glScalef(1.0,30.0,10.0);
+        drawCube(1,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(129.0,i,270.0);
+        glScalef(1.0,10.0,10.0);
+        drawCube(1,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(129.0,i+20,270.0);
+        glScalef(1.0,10.0,10.0);
+        drawCube(1,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(129.0,i,280.0);
+        glScalef(1.0,30.0,10.0);
+        drawCube(1,0,1);
+        glPopMatrix();
+        ///backwall
         glPushMatrix();
         glTranslatef(80.0,i,289.0);
         glScalef(50.0,30.0,1.0);
         drawCube(0,0,1);
         glPopMatrix();
+        ///frntwall
+        glPushMatrix();
+        glTranslatef(80.0,i,240.0);
+        glScalef(5.0,30.0,1.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(85.0,i,240.0);
+        glScalef(10.0,10.0,1.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(85.0,i+20,240.0);
+        glScalef(10.0,10.0,1.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(95.0,i,240.0);
+        glScalef(5.0,30.0,1.0);
+        drawCube(0,0,1);
+        glPopMatrix();
 
         glPushMatrix();
+        glTranslatef(110.0,i,240.0);
+        glScalef(5.0,30.0,1.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(115.0,i,240.0);
+        glScalef(10.0,10.0,1.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(115.0,i+20,240.0);
+        glScalef(10.0,10.0,1.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(125.0,i,240.0);
+        glScalef(5.0,30.0,1.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+        ///mid2
+        glPushMatrix();
         glTranslatef(110.0,i,250.0);
+        glRotatef(90,0,1,0);
         glScalef(1.0,20.0,5.0);
         drawCube(0,1,1);
         glPopMatrix();
-
+        ///mid1
         glPushMatrix();
         glTranslatef(99.0,i,255.0);
         glScalef(1.0,30.0,35.0);
@@ -1214,6 +1374,7 @@ static void newbuild(void)
         glPopMatrix();
         glPushMatrix();
         glTranslatef(99.0,i,250.0);
+        glRotatef(-90,0,1,0);
         glScalef(1.0,20.0,5.0);
         drawCube(0,1,1);
         glPopMatrix();
@@ -1227,7 +1388,7 @@ static void newbuild(void)
         glScalef(1.0,30.0,10.0);
         drawCube(0,0,1);
         glPopMatrix();
-
+        ///mid2
         glPushMatrix();
         glTranslatef(110.0,i,255.0);
         glScalef(1.0,30.0,35.0);
@@ -1244,7 +1405,7 @@ static void newbuild(void)
         glScalef(1.0,10.0,5.0);
         drawCube(0,1,0);
         glPopMatrix();
-
+        ///stair
         glPushMatrix();
         glTranslatef(100.0,i,255.0);
         glRotatef(-30,1,0,0);
@@ -1272,13 +1433,29 @@ static void newbuild(void)
         glScalef(1.0,1.0,30.0);
         drawCube(0,0,0);
         glPopMatrix();
-
+        for(double j=255; j<=275; j+=5,gg+=3)
+        {
+            glPushMatrix();
+            glTranslatef(100,gg,j);
+            glScalef(5.0, 1.0, 1.0);
+            drawCube();
+            glPopMatrix();
+        }
+        for(double j=275; j>=255; j-=5,kg+=3)
+        {
+            glPushMatrix();
+            glTranslatef(105,kg,j);
+            glScalef(5.0, 1.0, 1.0);
+            drawCube();
+            glPopMatrix();
+        }
+        ///mid
         glPushMatrix();
         glTranslatef(100.0,i,240.0);
         glScalef(10.0,1.0,15.0);
         drawCube(1,0,0);
         glPopMatrix();
-
+            ///stairmid
         glPushMatrix();
         glTranslatef(100.0,i+15,280.0);
         glScalef(10.0,1.0,10.0);
