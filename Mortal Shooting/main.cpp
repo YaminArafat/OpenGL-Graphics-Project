@@ -8,16 +8,212 @@
 #include "include/BmpLoader.h"
 #include <bits/stdc++.h>
 using namespace std;
+const double PI = 3.14159265389;
+
+int anglex= 0, angley = 0, anglez = 0;          //rotation angles
+int window;
+int wired=0;
+int shcpt=1;
+int animat = 0;
+const int L=20;
+const int dgre=3;
+int ncpt=L+1;
+int clikd=0;
+const int nt = 40;				//number of slices along x-direction
+const int ntheta = 20;
+double heli=0.0,hlx=0,hly=0,hlz=0,hrot=0;
+
+
+GLfloat ctrlpoints[L+1][3] =
+{
+    { 0.0, 0.0, 0.0}, { 0.1, 0.2, 0.0},
+    { 0.2, 0.5, 0.0},{ 0.3, 0.8, 0.0},
+    {0.4, 1.1, 0.0}, {0.5, 1.5, 0.0},
+    {3.0, 2.5, 0.0},{3.5, 2.5, 0.0},
+    {4.0, 2.5, 0.0}, {4.5, 2.5, 0.0},
+    {7.0, 2.5, 0.0},{7.5, 2.5, 0.0},
+    {8.0, 2.0, 0.0},{8.5, 2.0, 0.0},
+    {8.6, 1.5, 0.0},{8.7, 1.0, 0.0},
+    {8.9, 0.5, 0.0},{9.0, 0.0, 0.0},
+    {9.1, -0.2, 0.0},{9.2, -0.5, 0.0},
+    //{9.5, 1.0, 0.0}
+};
+float wcsClkDn[3],wcsClkUp[3];
+///////////////////////////////
+class point1
+{
+public:
+    point1()
+    {
+        x=0;
+        y=0;
+    }
+    int x;
+    int y;
+} clkpt[2];
+int flag=0;
+GLint viewport[4]; //var to hold the viewport info
+GLdouble modelview[16]; //var to hold the modelview info
+GLdouble projection[16]; //var to hold the projection matrix info
+
+//////////////////////////
+void scsToWcs(float sx,float sy, float wcsv[3] );
+void processMouse(int button, int state, int x, int y);
+void matColor(float kdr, float kdg, float kdb,  float shiny, int frnt_Back=0, float ambFactor=1.0, float specFactor=1.0);
+///////////////////////////
+
+void scsToWcs(float sx,float sy, float wcsv[3] )
+{
+
+    GLfloat winX, winY, winZ; //variables to hold screen x,y,z coordinates
+    GLdouble worldX, worldY, worldZ; //variables to hold world x,y,z coordinates
+
+    //glGetDoublev( GL_MODELVIEW_MATRIX, modelview ); //get the modelview info
+    glGetDoublev( GL_PROJECTION_MATRIX, projection ); //get the projection matrix info
+    glGetIntegerv( GL_VIEWPORT, viewport ); //get the viewport info
+
+    winX = sx;
+    winY = (float)viewport[3] - (float)sy;
+    winZ = 0;
+
+    //get the world coordinates from the screen coordinates
+    gluUnProject( winX, winY, winZ, modelview, projection, viewport, &worldX, &worldY, &worldZ);
+    wcsv[0]=worldX;
+    wcsv[1]=worldY;
+    wcsv[2]=worldZ;
+
+
+}
+//control points
+long long nCr(int n, int r)
+{
+    if(r > n / 2) r = n - r; // because C(n, r) == C(n, n - r)
+    long long ans = 1;
+    int i;
+
+    for(i = 1; i <= r; i++)
+    {
+        ans *= n - r + i;
+        ans /= i;
+    }
+
+    return ans;
+}
+void setNormal(GLfloat x1, GLfloat y1,GLfloat z1, GLfloat x2, GLfloat y2,GLfloat z2, GLfloat x3, GLfloat y3,GLfloat z3)
+{
+    GLfloat Ux, Uy, Uz, Vx, Vy, Vz, Nx, Ny, Nz;
+
+    Ux = x2-x1;
+    Uy = y2-y1;
+    Uz = z2-z1;
+
+    Vx = x3-x1;
+    Vy = y3-y1;
+    Vz = z3-z1;
+
+    Nx = Uy*Vz - Uz*Vy;
+    Ny = Uz*Vx - Ux*Vz;
+    Nz = Ux*Vy - Uy*Vx;
+
+    glNormal3f(-Nx,-Ny,-Nz);
+}
+void BezierCurve ( double t,  float xy[2])
+{
+    double y=0;
+    double x=0;
+    t=t>1.0?1.0:t;
+    for(int i=0; i<=L; i++)
+    {
+        int ncr=nCr(L,i);
+        double oneMinusTpow=pow(1-t,double(L-i));
+        double tPow=pow(t,double(i));
+        double coef=oneMinusTpow*tPow*ncr;
+        x+=coef*ctrlpoints[i][0];
+        y+=coef*ctrlpoints[i][1];
+
+    }
+    xy[0] = float(x);
+    xy[1] = float(y);
+
+    //return y;
+}
+void bottleBezier()
+{
+    int i, j;
+    float x, y, z, r;				//current coordinates
+    float x1, y1, z1, r1;			//next coordinates
+    float theta;
+
+    const float startx = 0, endx = ctrlpoints[19][0];
+    //number of angular slices
+    const float dx = (endx - startx) / nt;	//x step size
+    const float dtheta = 2*PI / ntheta;		//angular step size
+
+    float t=0;
+    float dt=1.0/nt;
+    float xy[2];
+    BezierCurve( t,  xy);
+    x = xy[0];
+    r = xy[1];
+    //rotate about z-axis
+    float p1x,p1y,p1z,p2x,p2y,p2z;
+    for ( i = 0; i < nt; ++i )  			//step through x
+    {
+        theta = 0;
+        t+=dt;
+        BezierCurve( t,  xy);
+        x1 = xy[0];
+        r1 = xy[1];
+
+        //draw the surface composed of quadrilaterals by sweeping theta
+        glBegin( GL_QUAD_STRIP );
+        for ( j = 0; j <= ntheta; ++j )
+        {
+            theta += dtheta;
+            double cosa = cos( theta );
+            double sina = sin ( theta );
+            y = r * cosa;
+            y1 = r1 * cosa;	//current and next y
+            z = r * sina;
+            z1 = r1 * sina;	//current and next z
+
+            //edge from point at x to point at next x
+            glVertex3f (x, y, z);
+
+            if(j>0)
+            {
+                setNormal(p1x,p1y,p1z,p2x,p2y,p2z,x, y, z);
+            }
+            else
+            {
+                p1x=x;
+                p1y=y;
+                p1z=z;
+                p2x=x1;
+                p2y=y1;
+                p2z=z1;
+
+            }
+            glVertex3f (x1, y1, z1);
+
+            //forms quad with next pair of points with incremented theta value
+        }
+        glEnd();
+        x = x1;
+        r = r1;
+    } //for i
+
+}
 const int width = 800;
 const int height = 800;
 const float rat = 1.0 * width / height;
-GLfloat eyeX = 320;//21.5;//50;
+GLfloat eyeX = 100;//21.5;//50;
 GLfloat eyeY = 50;//25;//50;
-GLfloat eyeZ = 170;//300;//5;//100;
+GLfloat eyeZ = 150;//300;//5;//100;
 
 GLfloat lookX = 100;//21.5;//50;
 GLfloat lookY = 50;//40;//50;
-GLfloat lookZ = 80;//30;//0;
+GLfloat lookZ = 500;//30;//0;
 GLfloat tmpx,tmpy,tmpz,m=0;
 unsigned int ID;
 bool light1= true, light2 = true, light3 =true,p=false,M=false;
@@ -102,38 +298,38 @@ void drawtree(int n)
 {
     if(n>0)
     {
-    //////////////////////////
-    //stack of matrices
-     glPushMatrix();
+        //////////////////////////
+        //stack of matrices
+        glPushMatrix();
 
-     glTranslatef(100,30.0,50);
-     glRotatef(45, 0.0, 0.0, 1.0);
+        glTranslatef(100,30.0,50);
+        glRotatef(45, 0.0, 0.0, 1.0);
 
-     // 1/sqrt(2)=0.707
-     glScalef(0.707,0.707,0.707);
+        // 1/sqrt(2)=0.707
+        glScalef(0.707,0.707,0.707);
 
-     //recursion
-     drawtree(n-1);
+        //recursion
+        drawtree(n-1);
 
-     glPopMatrix();
-    ////////////////////////////
+        glPopMatrix();
+        ////////////////////////////
 
-     glPushMatrix();
-     glTranslatef(-100,30.0,50);
-     glRotatef(-45, 0.0, 0.0, 1.0);
-     glScalef(0.707,0.707,0.707);
-     drawtree(n-1);
-     glPopMatrix();
-     //draw a cube
-     glutSolidCube(1);
+        glPushMatrix();
+        glTranslatef(-100,30.0,50);
+        glRotatef(-45, 0.0, 0.0, 1.0);
+        glScalef(0.707,0.707,0.707);
+        drawtree(n-1);
+        glPopMatrix();
+        //draw a cube
+        glutSolidCube(1);
     }
 }
 
 void treeInit(int n)
 {
     // draw a red tree
-   glColor3f(1.0, 0.0, 0.0);
-   drawtree(n);
+    glColor3f(1.0, 0.0, 0.0);
+    drawtree(n);
 }
 
 void LoadTexture(const char*filename)
@@ -326,7 +522,7 @@ static void player(void)
     glBegin(GL_LINES);
     glColor3f(1,0,0);
     glVertex3f(1.0f, 20.0f, -10.0f);
-    glVertex3f(1.0f, 12.0f, -110.0f);
+    glVertex3f(1.0f, 15.0f, -180.0f);
     glEnd();
     glPopMatrix();
     glPushMatrix();
@@ -509,7 +705,7 @@ static void train_ground(void)
         glPushMatrix();
         if((j+movex[(int)((int)i/10)])>=225.5 && (j+movex[(int)((int)i/10)])<=237.5 && M)
         {
-            glTranslatef(j+movex[(int)((int)i/10)],-16,i);
+            glTranslatef(j+movex[(int)((int)i/10)],-20,i);
         }
         else
         {
@@ -517,10 +713,10 @@ static void train_ground(void)
         }
         if(p)
         {
-            glTranslatef(0,16,0);
+            glTranslatef(0,20,0);
             p=false;
         }
-        glScalef(15, 15, 0.5);
+        glScalef(15, 20, 0.5);
         drawCube();
         glPopMatrix();
     }
@@ -530,14 +726,14 @@ static void train_ground(void)
         glTranslated(j+movex[(int)((int)i/10)],0,i);
         if((j+movex[(int)((int)i/10)])>=225.5 && (j+movex[(int)((int)i/10)])<=237.5 && M)
         {
-            glTranslatef(0,-16,0);
+            glTranslatef(0,-20,0);
         }
         if(p)
         {
-            glTranslatef(0,16,0);
+            glTranslatef(0,20,0);
             p=false;
         }
-        glScalef(15, 15, 0.5);
+        glScalef(15, 20, 0.5);
         drawCube();
         glPopMatrix();
     }
@@ -776,6 +972,332 @@ static void MAP(void)
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 }
+static void copter(void)
+{
+    const double t = glutGet(GLUT_ELAPSED_TIME) / 5000.0;
+    const double a = t*90.0;
+     glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,22);
+    if(wired)
+    {
+        glPolygonMode( GL_FRONT, GL_LINE ) ;
+        glPolygonMode( GL_BACK, GL_LINE ) ;
+
+    }
+    else
+    {
+        glPolygonMode( GL_FRONT,GL_FILL ) ;
+        glPolygonMode( GL_BACK, GL_FILL ) ;
+    }
+
+    glPushMatrix();
+
+    if(animat)
+        glRotated(a,0,0,1);
+
+    glRotatef( anglex, 1.0, 0.0, 0.0);
+    glRotatef( angley, 0.0, 1.0, 0.0);         	//rotate about y-axis
+    glRotatef( anglez, 0.0, 0.0, 1.0);
+
+    //glRotatef( 90, 0.0, 1.0, 0.0);
+    //glColor3f(1,0,0);
+    glTranslatef(200,20,247);
+    glScalef(6,6,5);
+    glGetDoublev( GL_MODELVIEW_MATRIX, modelview ); //get the modelview info
+
+    //matColor(1,1,1,20);   // front face color
+    //matColor(0,0.2,0.0,20,1);  // back face color
+
+
+    bottleBezier();
+
+
+//    if(shcpt)
+//    {
+//        matColor(0.0,0.0,0.9,20);
+//        showControlPoints();
+//    }
+
+    glPopMatrix();
+
+
+//glPushMatrix();
+    //glRotatef()
+    glPushMatrix();
+    glTranslatef(230,40,248);
+    glRotatef(heli,0,1,0);
+    glScalef(20,0.2,2);
+    drawCube(1,1,1);
+
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(230,40,248);
+    //glRotatef(180,0,)
+    glRotatef(heli,0,1,0);
+    glScalef(2,0.2,20);
+    drawCube(1,1,1);
+
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(230,40,248);
+    glRotatef(180,0,0,1);
+    glRotatef(heli,0,-1,0);
+    glScalef(20,0.2,2);
+    drawCube(1,1,1);
+
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(230,40,248);
+    glRotatef(180,1,0,0);
+    glRotatef(heli,0,-1,0);
+    glScalef(2,0.2,20);
+    drawCube(1,1,1);
+
+    glPopMatrix();
+
+    //glPopMatrix();
+
+
+    double xxxx=-50;
+    glPushMatrix();
+    //
+    glTranslatef(-20,280,209);
+    glRotatef(90,1,0,0);
+
+    glPushMatrix();
+    glTranslatef(245+xxxx,40,250);
+    glRotatef(heli,0,1,0);
+    glScalef(15,0.2,2);
+    drawCube(1,1,1);
+
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(245+xxxx,40,250);
+    //glRotatef(180,0,)
+    glRotatef(heli,0,1,0);
+    glScalef(2,0.2,15);
+    drawCube(1,1,1);
+
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(245+xxxx,40,250);
+    glRotatef(180,0,0,1);
+    glRotatef(heli,0,-1,0);
+    glScalef(15,0.2,2);
+    drawCube(1,1,1);
+
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(245+xxxx,40,250);
+    glRotatef(180,1,0,0);
+    glRotatef(heli,0,-1,0);
+    glScalef(2,0.2,15);
+    drawCube(1,1,1);
+
+    glPopMatrix();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(180,22,246);
+    glScalef(25,3,3);
+    drawCube(0.4,0.4,0.2);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(180,25,246.5);
+    glRotatef(45,0,0,1);
+    glScalef(2,10,2);
+    drawCube(1,1,1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(230,34,247);
+    glScalef(1,6,1);
+    drawCube(1,1,1);
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+    glPushMatrix();
+    glTranslatef(220,1,240);
+    glScalef(20,1,1);
+    drawCube(1,1,1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(220,1,254);
+    glScalef(20,1,1);
+    drawCube(1,1,1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(225,1,240);
+    glScalef(1,9,1);
+    drawCube(1,1,1);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(235,1,240);
+    glScalef(1,9,1);
+    drawCube(1,1,1);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(225,1,254);
+    glScalef(1,9,1);
+    drawCube(1,1,1);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(235,1,254);
+    glScalef(1,9,1);
+    drawCube(1,1,1);
+    glPopMatrix();
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,23);
+    glPushMatrix();
+    glTranslatef(170,0,210);
+    glScalef(120,1,80);
+    drawCube(1,1,1);
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+
+}
+
+static void newbuild(void)
+{
+    for(double i=0.0; i<=90.0; i+=30.0)
+    {
+
+
+
+        if(i<90.0)
+            {
+                glPushMatrix();
+        glTranslatef(80.0,i,240.0);
+        glScalef(20.0,1.0,50.0);
+        drawCube(1,1,1);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(110.0,i,240.0);
+        glScalef(20.0,1.0,50.0);
+        drawCube(1,1,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(80.0,i,240.0);
+        glScalef(1.0,30.0,50.0);
+        drawCube(1,1,0);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(129.0,i,240.0);
+        glScalef(1.0,30.0,50.0);
+        drawCube(1,0,1);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(80.0,i,289.0);
+        glScalef(50.0,30.0,1.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(110.0,i,250.0);
+        glScalef(1.0,20.0,5.0);
+        drawCube(0,1,1);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(99.0,i,255.0);
+        glScalef(1.0,30.0,35.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(99.0,i,250.0);
+        glScalef(1.0,20.0,5.0);
+        drawCube(0,1,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(99.0,i+20,250.0);
+        glScalef(1.0,10.0,5.0);
+        drawCube(0,1,0);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(99.0,i,240.0);
+        glScalef(1.0,30.0,10.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(110.0,i,255.0);
+        glScalef(1.0,30.0,35.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(110.0,i,240.0);
+        glScalef(1.0,30.0,10.0);
+        drawCube(0,0,1);
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(110.0,i+20,250.0);
+        glScalef(1.0,10.0,5.0);
+        drawCube(0,1,0);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(100.0,i,255.0);
+        glRotatef(-30,1,0,0);
+        glScalef(1.0,1.0,30.0);
+        drawCube(0,0,0);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(104.0,i,255.0);
+        glRotatef(-30,1,0,0);
+        glScalef(1.0,1.0,30.0);
+        drawCube(0,0,0);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(105.0,i+30,255.0);
+        glRotatef(30,1,0,0);
+        glScalef(1.0,1.0,30.0);
+        drawCube(0,0,0);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(109.0,i+30,255.0);
+        glRotatef(30,1,0,0);
+        glScalef(1.0,1.0,30.0);
+        drawCube(0,0,0);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(100.0,i,240.0);
+        glScalef(10.0,1.0,15.0);
+        drawCube(1,0,0);
+        glPopMatrix();
+
+        glPushMatrix();
+        glTranslatef(100.0,i+15,280.0);
+        glScalef(10.0,1.0,10.0);
+        drawCube(1,1,0);
+        glPopMatrix();
+
+        }
+        else
+        {
+            glPushMatrix();
+        glTranslatef(80.0,i,240.0);
+        glScalef(50.0,1.0,50.0);
+        drawCube(1,1,1);
+        glPopMatrix();
+
+        }
+
+    }
+}
 static void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -788,19 +1310,60 @@ static void display(void)
     glLoadIdentity();
     gluLookAt(eyeX,eyeY,eyeZ, lookX,lookY,lookZ, 0,1,0);
 
-    //glRotatef(rot,0,1,0);
+    //glRotatef(hrot/10,0,1,0);
+
     glTranslatef(-plx,0,-plz);
+    glTranslatef(-hlx,-hly,-hlz);
     MAP();
     train_ground();
 
     glPushMatrix();
-    glTranslatef(230,0,155);
+    glTranslatef(230,0,175);
     player();
     glPopMatrix();
+
+
+
+    glPushMatrix();
+    //glRotatef(hrot,0,1,0);
+    glTranslatef(hlx,hly,hlz);
+
+    copter();
+    glPopMatrix();
+    newbuild();
     //treeInit(15);
     glutSwapBuffers();
 }
+void matColor(float kdr, float kdg, float kdb,  float shiny, int frnt_Back, float ambFactor, float specFactor)
+{
 
+    const GLfloat mat_ambient[]    = { kdr*ambFactor, kdg*ambFactor, kdb*ambFactor, 1.0f };
+    const GLfloat mat_diffuse[]    = { kdr, kdg, kdb, 1.0f };
+    const GLfloat mat_specular[]   = { 1.0f*specFactor, 1.0f*specFactor, 1.0f*specFactor, 1.0f };
+    const GLfloat high_shininess[] = { shiny };
+    if(frnt_Back==0)
+    {
+        glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
+        glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
+        glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+        glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+    }
+    else if(frnt_Back==1)
+    {
+        glMaterialfv(GL_BACK, GL_AMBIENT,   mat_ambient);
+        glMaterialfv(GL_BACK, GL_DIFFUSE,   mat_diffuse);
+        glMaterialfv(GL_BACK, GL_SPECULAR,  mat_specular);
+        glMaterialfv(GL_BACK, GL_SHININESS, high_shininess);
+    }
+    else if(frnt_Back==2)
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, high_shininess);
+    }
+
+}
 static void key(unsigned char key, int x, int y)
 {
     switch (key)
@@ -809,6 +1372,40 @@ static void key(unsigned char key, int x, int y)
     case 'q':
         exit(0);
         break;
+    case 'n':
+        animat=!animat;
+        break;
+
+    case '4':
+        //case 'S':
+        shcpt=!shcpt;
+        break;
+
+    case '5':
+        //case 'W':
+        wired=!wired;
+        break;
+
+    case '6':
+        anglex = ( anglex + 3 ) % 360;
+        break;
+//    case 'X':
+//        anglex = ( anglex - 3 ) % 360;
+//        break;
+
+    case '8':
+        angley = ( angley + 3 ) % 360;
+        break;
+//    case 'Y':
+//        angley = ( angley - 3 ) % 360;
+//        break;
+
+    case '7':
+        anglez = ( anglez + 3 ) % 360;
+        break;
+//    case 'Z':
+//        anglez = ( anglez - 3 ) % 360;
+//        break;
     case 't':
         lookY += 1.5;
         break;
@@ -851,19 +1448,19 @@ static void key(unsigned char key, int x, int y)
         //eyeX-=5;
         break;
     case 'm':
+    {
+        if(fanim)
         {
-            if(fanim)
-            {
-                if(fanim==.4)
-                    fanim=-.4;
-                else
-                    fanim=.4;
-            }
+            if(fanim==.4)
+                fanim=-.4;
             else
                 fanim=.4;
         }
-        M=true;
-        break;
+        else
+            fanim=.4;
+    }
+    M=true;
+    break;
     case '-':
         prot--;
         //lookX+=5;
@@ -908,7 +1505,7 @@ static void key(unsigned char key, int x, int y)
             light3 = true;
         }
         break;
-        case 'p':
+    case 'p':
         p= true;
         M=false;
         break;
@@ -923,8 +1520,8 @@ static void key(unsigned char key, int x, int y)
         break;
     case 'v':
         eyeX=233;
-        eyeY=21;
-        eyeZ=155;
+        eyeY=23;
+        eyeZ=175;
         lookX=230;
         lookY=50;
         lookZ=0;
@@ -953,6 +1550,38 @@ static void key(unsigned char key, int x, int y)
         plz++;
         //eyeZ--;
         break;
+    case 'L':
+        hlx++;
+        //eyeX++;
+        break;
+    case 'J':
+        hlx--;
+        //eyeX--;
+        break;
+    case 'I':
+        hly++;
+        //eyeZ++;
+        break;
+    case 'K':
+        hly--;
+        //eyeZ--;
+        break;
+    case 'P':
+        hlz++;
+        //eyeZ++;
+        break;
+    case 'O':
+        hlz--;
+        //eyeZ--;
+        break;
+//    case 'M':
+//        hrot=90;
+//        //eyeZ++;
+//        break;
+//    case 'N':
+//        hrot=90;
+//        //eyeZ--;
+//        break;
     }
 
     glutPostRedisplay();
@@ -1083,6 +1712,9 @@ static void light()
 /* Program entry point */
 void animate()
 {
+    heli+=2;
+    if(heli>360)
+        heli=0;
     {
         if(movex[1]<120 && on)
         {
@@ -1293,6 +1925,8 @@ int main(int argc, char *argv[])
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\shirt2.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\pant.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\skin3.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\army2.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\helipad.bmp");
 
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
