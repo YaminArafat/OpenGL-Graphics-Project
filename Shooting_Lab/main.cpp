@@ -1,5 +1,12 @@
 ///openGl aim lab By Ashikur Rahaman
-#include<GL/gl.h>
+#include <GL/gl.h>
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+#include <vector>
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <stdlib.h>
@@ -12,8 +19,8 @@ using namespace std;
 const int width = 1000;
 const int height = 1000;
 double Txval=0,Tyval=0,Tzval=0;
-GLfloat alpha = 0.0,win=0.0, theta = 0.0, axis_x=0.0, axis_y=0.5,axis_z = -90.0,c=0.4;
-GLboolean fire = false,flag1 = false,flag2 = false,flag3 = false,flag4 = false,flag5 = false,cut = false,jump = false, Njump = false;
+GLfloat alpha = 0.0,win=0.0, fie = 0.0, axis_x=50, axis_y=10,axis_z = -100.0,c=0.4,bita=0.0;
+GLboolean fire = false,flag1 = false,flag2 = false,flag3 = false,flag4 = false,flag5 = false,flag6 = false,cut = false,jump = false, Njump = false, bit= false,door=false, amb=true;
 const float rat = 1.0 * width / height;
 unsigned int ID;
 
@@ -23,14 +30,26 @@ float rot = 0,up= 0;
 
 bool l_on = true;
 
-GLfloat eyeX = 0;
+GLfloat eyeX = -5;
 GLfloat eyeY = 15;
-GLfloat eyeZ = -120.5;
+GLfloat eyeZ = -155;
 
-GLfloat lookX = 1.5;
+GLfloat lookX = -5;
 GLfloat lookY = 10;
-GLfloat lookZ = 25;
-
+GLfloat lookZ = 100;
+///curve
+int anglex= 0, angley = 0, anglez = 0;          //rotation angles
+int window;
+int wired=0;
+int shcpt=0;
+//int animat = 0;
+const int L=30;
+const int dgre=3;
+int ncpt=L+1;
+int clikd=0;
+const int nt = 50;				//number of slices along x-direction
+const int ntheta = 20;
+const double PI = 3.14159265389;
 
 
 static GLfloat v_cube[8][3] =
@@ -168,19 +187,19 @@ void axes()
 void crosair()
 {
     glPushMatrix();
-    glTranslatef(c,7,-10);
+    glTranslatef(c,7,-2);
     glScalef(.2,.5,.2);
     cube(1.000, 0.000, 0.000);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(.25,7.15,-10);
+    glTranslatef(.25,7.15,-2);
     glScalef(.5,.2,.2);
     cube(1.000, 0.000, 0.000);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(c,7.15,-10);
+    glTranslatef(c,7.15,-2);
     glScalef(.1,.1,.1);
     cube(1.000, 0.000, 0.000);
     glPopMatrix();
@@ -193,32 +212,77 @@ void wall()
     glPushMatrix();
     glTranslatef(-80,0,-80);
     glScalef(2,30,140);
-    cube();
+    cube(0,1,1);
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef(-80,0,60);
     glScalef(20,30,2);
-    cube();
+    cube(0,1,1);
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef(-80,0,-80);
     glScalef(60,30,2);
-    cube();
+    cube(0,1,1);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(10,0,-140);
-    glScalef(2,30,80);
-    cube();
+    glTranslatef(10,0,-110);
+    glScalef(2,30,50);
+    cube(0,1,1);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-20,0,-140);
-    glScalef(2,30,60);
-    cube();
+    glTranslatef(-20,0,-100);
+    glScalef(30,4,2);
+    cube(0,1,0);
     glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-20,0,-98);
+    glScalef(30,6,2);
+    cube(1,0,0);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-20,0,-130);
+    glScalef(2,30,50);
+    cube(0,1,1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-20,0,-130);
+    glScalef(60,30,2);
+    cube(1,1,0);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(22,4,-100);
+    glRotatef(bita,0,0,1);
+    glScalef(2,4,2);
+    cube(0,1,0);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(25,5,-98);
+    glRotatef(bita,1,0,0);
+    glScalef(2,6,2);
+    cube(1,0,0);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(35,0,-110);
+    glScalef(2,30,50);
+    cube(.5,.5,1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(60,0,-130);
+    glScalef(2,30,70);
+    cube(1,1,0);
+    glPopMatrix();
+
     glDisable(GL_TEXTURE_2D);
 }
 void flr()
@@ -346,34 +410,188 @@ void bot(float pos_x,float pos_y,float pos_z)
     glDisable(GL_TEXTURE_2D);
 
 }
+///curve beizure
+
+GLfloat ctrlpoints[L+1][3] =
+{
+    { 0.0, 0.0, 0.0}, { 0, 1, 0.0},
+    { 0, 1, 0.0},{ 0, 3, 0.0},
+    {0, 4, 0.0}, {0, 5, 0.0},
+    {0, 6, 0.0},{0, 7, 0.0},
+    {.4, 8, 0.0}, {.8, 9, 0.0},
+    {1.2, 10, 0.0},{1.6, 9, 0.0},
+    {2, 8, 0.0},{2, 7, 0.0},
+    {2, 6, 0.0},{2, 5, 0.0},
+    {2,4, 0.0},{2,3, 0.0},
+    {2,2, 0.0},{2, 1, 0.0},
+    {2, 0, 0.0}
+};
+
+GLfloat ctrlpoint[L+1][3] =
+{
+    {0,  5, 0.0},{ 1, 5, 0.0},
+    {2,  5, 0.0},{ 3, 5, 0.0},
+    {4,  5, 0.0},{5,  5, 0.0},
+    {6,  5, 0.0},{7,  5, 0.0},
+    {8,  2, 0.0},{9,  2, 0.0},
+    {10, 2, 0.0},{11, 2, 0.0},
+    {12, 2, 0.0},{13, 2, 0.0},
+    {14, 2, 0.0},{15, 2, 0.0},
+    {16, 2, 0.0},{17, 2, 0.0},
+    {18, 2, 0.0},{19, 2, 0.0},
+    {18, 2.5, 0.0},{17, 2.5, 0.0},
+    {16, 3, 0.0},{15, 3.5, 0.0},
+    {15, 3.5, 0.0},{18, 4, 0.0},
+    {20, 4, 0.0},{21, 2, 0.0},
+    {22, 1, 0.0},{23, .5, 0.0},
+    {24, 0, 0.0}
+};
+
+long long nCr(int n, int r)
+{
+    if(r > n / 2) r = n - r; // because C(n, r) == C(n, n - r)
+    long long ans = 1;
+    int i;
+
+    for(i = 1; i <= r; i++)
+    {
+        ans *= n - r + i;
+        ans /= i;
+    }
+
+    return ans;
+}
+
+void BezierCurve ( double t,  float xy[2],float q=1, float colR=1, float colG=1, float colB=1,bool em=false, float shine=128 )
+{
+    set_mat_prop(colR,colG,colB,em,shine);
+
+    double y=0;
+    double x=0;
+    t=t>1.0?1.0:t;
+    for(int i=0; i<=L; i++)
+    {
+        int ncr=nCr(L,i);
+        double oneMinusTpow=pow(1-t,double(L-i));
+        double tPow=pow(t,double(i));
+        double coef=oneMinusTpow*tPow*ncr;
+        if(q){
+        x+=coef*ctrlpoints[i][0];
+        y+=coef*ctrlpoints[i][1];
+        }
+        else {
+            x+=coef*ctrlpoint[i][0];
+            y+=coef*ctrlpoint[i][1];
+        }
+
+    }
+    xy[0] = float(x);
+    xy[1] = float(y);
+
+    //return y;
+}
+
+void bottleBezier(float q=1)
+{
+    int i, j;
+    float x, y, z, r;				//current coordinates
+    float x1, y1, z1, r1;			//next coordinates
+    float theta;
+    const float startx=0.0,endx=0.0;
+
+    if(q)
+        const float startx = 0, endx = ctrlpoints[L][0];
+    if(!q)
+        const float startx = 0, endx = ctrlpoint[L][0];
+    //number of angular slices
+    const float dx = (endx - startx) / nt;	//x step size
+    const float dtheta = 2*PI / ntheta;		//angular step size
+
+    float t=0;
+    float dt=1.0/nt;
+    float xy[2];
+   // BezierCurve( t,  xy);
+    x = xy[0];
+    r = xy[1];
+    //rotate about z-axis
+    float p1x,p1y,p1z,p2x,p2y,p2z;
+    for ( i = 0; i < nt; ++i )  			//step through x
+    {
+        theta = 0;
+        t+=dt;
+        BezierCurve( t,  xy, q,0.000, 0.502, 0.502);
+        x1 = xy[0];
+        r1 = xy[1];
+
+        //draw the surface composed of quadrilaterals by sweeping theta
+        glBegin( GL_QUAD_STRIP );
+        for ( j = 0; j <= ntheta; ++j )
+        {
+            theta += dtheta;
+            double cosa = cos( theta );
+            double sina = sin ( theta );
+            y = r * cosa;
+            y1 = r1 * cosa;	//current and next y
+            z = r * sina;
+            z1 = r1 * sina;	//current and next z
+
+            //edge from point at x to point at next x
+            glVertex3f (x, y, z);
+
+            if(j>0)
+            {
+                getNormal3p(p1x,p1y,p1z,p2x,p2y,p2z,x, y, z);
+            }
+            else
+            {
+                p1x=x;
+                p1y=y;
+                p1z=z;
+                p2x=x1;
+                p2y=y1;
+                p2z=z1;
+
+            }
+            glVertex3f (x1, y1, z1);
+
+            //forms quad with next pair of points with incremented theta value
+        }
+        glEnd();
+        x = x1;
+        r = r1;
+    } //for i
+
+}
+
+
 void player()
 {
     ///leg
   //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(-1,0,-23.3);
-    glScalef(.75,5.5,.25);
+    glTranslatef(-1,0,0);
+    glScalef(.75,5.5,.55);
     cube(0.000, 0.000, 0.545);
     glPopMatrix();
   //  glDisable(GL_TEXTURE_2D);
 
   //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(1.3,0,-23.3);
-    glScalef(.75,5.5,.25);
+    glTranslatef(1.3,0,0);
+    glScalef(.75,5.5,.55);
     cube(0.000, 0.000, 0.545);
     glPopMatrix();
    // glDisable(GL_TEXTURE_2D);
    ///shoe
      //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(-1.2,.5,-23);
+    glTranslatef(-1.2,.5,.6);
     glScalef(1,1,.1);
     cube(0,0,0);
     glPopMatrix();
   //  glDisable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(1.2,.5,-23);
+    glTranslatef(1.2,.5,.6);
     glScalef(1,1,.1);
     cube(0,0,0);
     glPopMatrix();
@@ -382,7 +600,7 @@ void player()
 ///body
   //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(-1,5,-23.7);
+    glTranslatef(-1,5,-.2);
     glScalef(3,5,1);
     cube(0.467, 0.533, 0.600);
     glPopMatrix();
@@ -390,7 +608,7 @@ void player()
   ///head
     //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(-.05,10,-23.5);
+    glTranslatef(-.05,10,-.25);
     glScalef(1,1,1);
     cube(0.871, 0.722, 0.529);
     glPopMatrix();
@@ -398,48 +616,52 @@ void player()
   ///hair
        //  glEnable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(-.05,10.85,-23.45);
+    glTranslatef(-.05,10.85,-.25);
     glScalef(1,.3,1);
     cube(0,0,0);
     glPopMatrix();
   //  glDisable(GL_TEXTURE_2D);
 
+  glPushMatrix();
+  if(fire==false)
+  glRotatef(-5,axis_z,0,0);
   ///hand
     glPushMatrix();
-    glTranslatef(-1.3,7,-23.7);
+    glTranslatef(-1.3,7,-.5);
     glScalef(.3,2.5,.3);
     cube(0.824, 0.412, 0.118);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-1.3,7,-23.7);
+    glTranslatef(-1.3,7,-.5);
     glScalef(.3,.3,2.5);
     cube(0.824, 0.412, 0.118);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(2,7,-23.7);
+    glTranslatef(2,7,-.5);
     glScalef(.3,2.5,.3);
     cube(0.824, 0.412, 0.118);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(2,7,-23.7);
+    glTranslatef(2,7,-.5);
     glScalef(.3,.3,2.5);
     cube(0.824, 0.412, 0.118);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-1.3,7,-21.2);
+    glTranslatef(-1.3,7,1.7);
     glScalef(3.5,.3,.3);
     cube(0.824, 0.412, 0.118);
     glPopMatrix();
     ///gun
     glPushMatrix();
-    glTranslatef(.40,7,-21.2);
+    glTranslatef(.40,7,1.7);
     glScalef(.3,.5,3);
     cube(0.184, 0.310, 0.310);
     glPopMatrix();
+ glPopMatrix();
 }
 
 static void res(int width, int height)
@@ -450,14 +672,14 @@ static void res(int width, int height)
 void light(float x=0.0)
 {
     GLfloat no_light[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat light_ambient[]  = {1.0, 1.0, 1.0, 1.0};
+    GLfloat light_ambient[]  = {1, 1, 1, 1};
     GLfloat light_diffuse[]  = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat light_position[] = { x,l_height,3,1.0 };
+    GLfloat light_position[] = { x,l_height,0,1.0 };
 
     glEnable( GL_LIGHT0);
 
-    if(l_on) glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+    if(l_on && amb) glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     else glLightfv(GL_LIGHT0, GL_AMBIENT, no_light);
     if(l_on) glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     else glLightfv(GL_LIGHT0, GL_DIFFUSE, no_light);
@@ -466,19 +688,130 @@ void light(float x=0.0)
 
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-    GLfloat spot_direction[] = { 0.0, -1.0, 0.0 };
+    GLfloat spot_direction[] = { 0, -1, 0,1 };
     GLfloat spt_ct[] = {spt_cutoff};
     glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
     glLightfv( GL_LIGHT0, GL_SPOT_CUTOFF, spt_ct);
 
 }
+///curve part
 
+
+
+/* GLUT callback Handlers */
+
+
+
+double ex=0, ey=0, ez=15, lx=0,ly=0,lz=0, hx=0,hy=1,hz=0;
+
+class point1
+{
+public:
+    point1()
+    {
+        x=0;
+        y=0;
+    }
+    int x;
+    int y;
+} clkpt[2];
+int flag=0;
+GLint viewport[4]; //var to hold the viewport info
+GLdouble modelview[16]; //var to hold the modelview info
+GLdouble projection[16]; //var to hold the projection matrix info
+
+//////////////////////////
+void scsToWcs(float sx,float sy, float wcsv[3] );
+void matColor(float kdr, float kdg, float kdb,  float shiny, int frnt_Back=0, float ambFactor=1.0, float specFactor=1.0);
+///////////////////////////
+
+void scsToWcs(float sx,float sy, float wcsv[3] )
+{
+
+    GLfloat winX, winY, winZ; //variables to hold screen x,y,z coordinates
+    GLdouble worldX, worldY, worldZ; //variables to hold world x,y,z coordinates
+
+    //glGetDoublev( GL_MODELVIEW_MATRIX, modelview ); //get the modelview info
+    glGetDoublev( GL_PROJECTION_MATRIX, projection ); //get the projection matrix info
+    glGetIntegerv( GL_VIEWPORT, viewport ); //get the viewport info
+
+    winX = sx;
+    winY = (float)viewport[3] - (float)sy;
+    winZ = 0;
+
+    //get the world coordinates from the screen coordinates
+    gluUnProject( winX, winY, winZ, modelview, projection, viewport, &worldX, &worldY, &worldZ);
+    wcsv[0]=worldX;
+    wcsv[1]=worldY;
+    wcsv[2]=worldZ;
+
+
+}
+
+
+void showControlPoints()
+{
+    glPointSize(5.0);
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_POINTS);
+    for (int i = 0; i <=L; i++)
+        glVertex3fv(&ctrlpoint[i][0]);
+    glEnd();
+}
+void rocket()
+{
+    ///rocket leg
+    glPushMatrix();
+    glTranslatef(47,-1,-100);
+    glScalef(1,12,1);
+    glRotatef(65,0,0,1);
+    cube(0.561, 0.737, 0.561);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(54,3,-100);
+    glScalef(1,12,1);
+    glRotatef(-35,0,0,1);
+    cube(0.561, 0.737, 0.561);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(48,1,-104);
+    glScalef(1,12,1);
+    glRotatef(-35,1,0,1);
+    cube(0.561, 0.737, 0.561);
+    glPopMatrix();
+    glPushMatrix();
+    glRotatef( anglex, 1.0, 0.0, 0.0);
+    glRotatef( angley, 0.0, 1.0, 0.0);         	//rotate about y-axis
+    glRotatef( anglez, 0.0, 0.0, 1.0);
+
+    glRotatef( 90, 0.0, 0.0, 1.0);
+  //  glTranslated(-3.5,0,0);
+    glGetDoublev( GL_MODELVIEW_MATRIX, modelview ); //get the modelview info
+
+    matColor(0.9,0.5,0.1,20);   // front face color
+    matColor(0.0,0.5,0.8,20,1);  // back face color
+
+///rocket
+    glTranslatef(10,-50,-100);
+    bottleBezier(0);
+
+    if(shcpt)
+    {
+        matColor(0.0,0.0,0.9,20);
+        showControlPoints();
+    }
+
+    glPopMatrix();
+
+
+
+}
 static void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustum(-10, 10, -10, 10, 3.0, 2000.0);
+    glFrustum(-10, 10, -5, 15, 3.0, 2000.0);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -495,12 +828,27 @@ static void display(void)
     glPushMatrix();
     //glRotatef(-rot, 0,1,0);
     glTranslatef(axis_x,axis_y,axis_z);
+
+        if(fie==0){
+            glRotatef(0, 0,axis_z,0);
+
+    }
+    if(fie==1){
+            glRotatef(90, 0,axis_z,0);
+
+    }
+    if(fie==2){
+            glRotatef(-90, 0,axis_z,0);
+
+    }
+    if(fie==3){
+            glRotatef(180, 0,axis_z,0);
+    }
     player();
     glPopMatrix();
 
     glPushMatrix();
     glTranslatef(axis_x,0,axis_z+10);
-    //glRotatef(-rot, 0,1,0);
     crosair();
     glPopMatrix();
 
@@ -562,32 +910,75 @@ static void display(void)
         glRotatef(-90, 1,0,0);
     bot(-10,0,-70);
     glPopMatrix();
+
+    glPushMatrix();
+    if(fire&& 25<= axis_x && 25+5>=axis_x )
+    {
+        glRotatef(-90, 1,0,0);
+        flag6=true;
+       // fire = false;
+    }
+    if(flag6)
+        glRotatef(-90, 1,0,0);
+    bot(25,0,-70);
+    glPopMatrix();
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,12);
+    glPushMatrix();
+    glTranslatef(40,0,-130);
+    if(door)glRotatef(90,0,1,0);
+    glScalef(20,30,1);
+    cube(1,1,0);
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
     //axes();
 
     glPushMatrix();
-    light(-30);
+    light(-100);
     glPopMatrix();
 
     glPushMatrix();
-    light(30);
+    light(100);
     glPopMatrix();
 
 
 
 ///tubelight
     glPushMatrix();
-    glTranslatef(20,l_height,3);
+    glTranslatef(100,l_height,3);
     glScalef(1,.5,5);
     glTranslatef(-0.5,-0.5,-0.5);
     cube(1, 1, 1,true);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-20,l_height,3);
+    glTranslatef(-100,l_height,3);
     glScalef(1,.5,5);
     glTranslatef(-0.5,-0.5,-0.5);
     cube(1, 1, 1,true);
     glPopMatrix();
+///curve properties
+
+
+ const double t = glutGet(GLUT_ELAPSED_TIME) / 5000.0;
+    const double a = t*90.0;
+
+
+    if(wired)
+    {
+        glPolygonMode( GL_FRONT, GL_LINE ) ;
+        glPolygonMode( GL_BACK, GL_LINE ) ;
+
+    }
+    else
+    {
+        glPolygonMode( GL_FRONT,GL_FILL ) ;
+        glPolygonMode( GL_BACK, GL_FILL ) ;
+    }
+
+    glRotatef(bita/5,1,0,0);
+    rocket();
 
     glutSwapBuffers();
 
@@ -621,20 +1012,24 @@ static void key(unsigned char key, int x, int y)
     case 'l':
     case 'L':
         axis_x-=1;
+        fie=1;
         break;
     case 'j':
     case 'J':
         axis_x+=1;
+        fie=2;
         break;
     case 'k':
     case 'K':
         axis_z-=1;
         Tzval+=1;
+        fie=3;
         break;
     case 'i':
     case 'I':
         axis_z+=1;
         Tzval-=1;
+        fie=0.0;
         break;
     case 'h':
     case 'H':
@@ -646,18 +1041,11 @@ static void key(unsigned char key, int x, int y)
         break;
 
     case '-':
-        Tzval+=0.2;
+        Tzval+=1;
         break;
 
     case '+':
-        Tzval-=0.2;
-        break;
-        case 'x':
-        eyeX-=0.2;
-        break;
-
-    case 'z':
-        eyeX+=0.2;
+        Tzval-=1;
         break;
     case 'f':
     case 'F':
@@ -666,11 +1054,12 @@ static void key(unsigned char key, int x, int y)
         break;
     case 'r':
     case 'R':
-        flag1=false;
-        flag2=false;
-        flag3=false;
+        flag1 = false;
+        flag2 = false;
+        flag3 = false;
         flag4 = false;
         flag5 = false;
+        flag6 = false;
         break;
     case '1':
         l_height++;
@@ -678,15 +1067,40 @@ static void key(unsigned char key, int x, int y)
     case '2':
         l_height--;
         break;
-
-    case '3':
-        spt_cutoff++;
-        break;
-    case '4':
-        spt_cutoff--;
-        break;
         case 't':
         cut=!cut;
+        break;
+    case 'v':
+        bit=!bit;
+        l_on=!l_on;
+        break;
+    case 'o':
+        door=!door;
+        break;
+    ///curve command
+    case '3':
+        shcpt=!shcpt;
+        break;
+
+    case '4':
+        wired=!wired;
+        break;
+
+    case 'x':
+        anglex = ( anglex + 3 ) % 360;
+        break;
+    case 'X':
+        anglex = ( anglex - 3 ) % 360;
+        break;
+
+    case 'y':
+        amb=!amb;
+        break;
+    case 'z':
+        anglez = ( anglez + 3 ) % 360;
+        break;
+    case 'Z':
+        anglez = ( anglez - 3 ) % 360;
         break;
 
 
@@ -715,7 +1129,46 @@ void animate()
     if(cut==true) spt_cutoff=0,l_on=false;
         else spt_cutoff=90,l_on=true;
 
+    if(bit==true) bita+=.2;
+
     glutPostRedisplay();
+
+}
+///curve func
+
+const GLfloat light_ambient[]  = { 1.0, 1.0, 1.0, 1.0 };
+const GLfloat light_diffuse[]  = { 1.0, 1.0, 1.0, 1.0 };
+const GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+const GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 1.0f };
+
+void matColor(float kdr, float kdg, float kdb,  float shiny, int frnt_Back, float ambFactor, float specFactor)
+{
+
+    const GLfloat mat_ambient[]    = { kdr*ambFactor, kdg*ambFactor, kdb*ambFactor, 1.0f };
+    const GLfloat mat_diffuse[]    = { kdr, kdg, kdb, 1.0f };
+    const GLfloat mat_specular[]   = { 1.0f*specFactor, 1.0f*specFactor, 1.0f*specFactor, 1.0f };
+    const GLfloat high_shininess[] = { shiny };
+    if(frnt_Back==0)
+    {
+        glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
+        glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
+        glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+        glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+    }
+    else if(frnt_Back==1)
+    {
+        glMaterialfv(GL_BACK, GL_AMBIENT,   mat_ambient);
+        glMaterialfv(GL_BACK, GL_DIFFUSE,   mat_diffuse);
+        glMaterialfv(GL_BACK, GL_SPECULAR,  mat_specular);
+        glMaterialfv(GL_BACK, GL_SHININESS, high_shininess);
+    }
+    else if(frnt_Back==2)
+    {
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, high_shininess);
+    }
 
 }
 
@@ -729,7 +1182,7 @@ int main(int argc, char *argv[])
     glutInitWindowPosition(10,10);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-    glutCreateWindow("Texture-Demo");
+    glutCreateWindow("Aim-lab");
 
     LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\wall1.bmp");
     LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\brick2.bmp");
@@ -742,8 +1195,9 @@ int main(int argc, char *argv[])
     LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\floor.bmp");
     LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\wall10.bmp");
     LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\brick.bmp");
+    LoadTexture("E:\\lecture slide\\4-2\\4208-graphics lab\\workplace shhooting game\\Door1.bmp");
 
-
+    //myInit();
     glutKeyboardFunc(key);
     glutDisplayFunc(display);
     glutIdleFunc(animate);
