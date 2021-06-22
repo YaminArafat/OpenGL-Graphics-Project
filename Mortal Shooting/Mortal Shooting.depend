@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1622433754 source:f:\study\4.2\graphics_project\mortal shooting\main.cpp
+1623546046 source:f:\study\4.2\graphics_project\mortal shooting\main.cpp
 	<GL/gl.h>
 	<GL/glu.h>
 	<GL/glut.h>
@@ -8,6 +8,7 @@
 	<windows.h>
 	<math.h>
 	"include/BmpLoader.h"
+	<bits/stdc++.h>
 
 976692172 c:\program files (x86)\codeblocks\mingw\include\gl\glut.h
 	<windows.h>
