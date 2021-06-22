@@ -10,7 +10,9 @@
 using namespace std;
 const double PI = 3.14159265389;
 
-int anglex= 0, angley = 0, anglez = 0;          //rotation angles
+int anglex= 0, angley = 0, anglez = 0,value=0,pnd;
+char result[50];
+bool arrr[500],arrr2[500],reset;
 int window;
 int wired=0;
 int shcpt=1;
@@ -19,9 +21,10 @@ const int L=20;
 const int dgre=3;
 int ncpt=L+1;
 int clikd=0;
-const int nt = 40;				//number of slices along x-direction
+const int nt = 40;
 const int ntheta = 20;
-double heli=0.0,hlx=0,hly=0,hlz=0,hrot=0;
+double heli=0.0,hlx=0,hly=0,hlz=0,hrot=0,rot=0,trot=0;
+double prev_mousex=0,prev_mousey=0,GunVRotate=0,GunHRotate=0,tnx=0,tny=0,tnz=0;
 
 
 GLfloat ctrlpoints[L+1][3] =
@@ -207,18 +210,18 @@ void bottleBezier()
 const int width = 800;
 const int height = 800;
 const float rat = 1.0 * width / height;
-GLfloat eyeX = 100;//21.5;//50;
-GLfloat eyeY = 50;//25;//50;
-GLfloat eyeZ = 150;//300;//5;//100;
+GLfloat eyeX = 225;//21.5;//50;
+GLfloat eyeY = 30;//25;//50;
+GLfloat eyeZ = -200;//300;//5;//100;
 
-GLfloat lookX = 100;//21.5;//50;
-GLfloat lookY = 50;//40;//50;
-GLfloat lookZ = 500;//30;//0;
+GLfloat lookX = 200;//21.5;//50;
+GLfloat lookY = 20;//40;//50;
+GLfloat lookZ = -500;//30;//0;
 GLfloat tmpx,tmpy,tmpz,m=0;
 unsigned int ID;
 bool light1= true, light2 = true, light3 =true,p=false,M=false;
 bool ambient =true, diffuse = true, specular = true;
-double movex[15],plx,plz,prot=0,fanim=0;//movex=0,movex2=0,movex3=0,movex4=0,movex5=0;
+double movex[15],plx,plz,ply=20,prot=0,fanim=0,bx=0,by=0,bz=0,bxx=230,byy=20,bzz=-1000;//movex=0,movex2=0,movex3=0,movex4=0,movex5=0;
 bool on=true,on2=true,on3=true,on4=true,on5=true,on6=true,on7=true,on8=true,on9=true,view=true;
 static GLfloat v_cube[8][3] =
 {
@@ -261,39 +264,48 @@ static void getNormal3p
 
     glNormal3f(Nx,Ny,Nz);
 }
-//void my_mouse(int button, int state, int x, int y)
-//{
-//    switch (button)
-//    {
-//    case GLUT_LEFT_BUTTON:
-//        if (state == GLUT_DOWN)
-//        {
-//
-//        }
-//        //glutIdleFunc(spinDisplay_left);
-//        else if(state == GLUT_UP)
-//        {
-//
-//        }
-//            glutIdleFunc(NULL);
-//        break;
-//    case GLUT_RIGHT_BUTTON:
-//        if (state == GLUT_DOWN)
-//        {
-//
-//        }
-//        //glutIdleFunc(spinDisplay_right);
-//        else if(state == GLUT_UP)
-//        {
-//
-//        }
-//            glutIdleFunc(NULL);
-//        //glutIdleFunc(NULL); // make idle function inactive
-//        break;
-//    default:
-//        break;
-//    }
-//}
+void renderBitmapString(float x,float y,float z,void *font,	char *String)
+{
+
+    glRasterPos3f(x, y,z);
+    char *cc;
+    for(cc = result; *cc != '\0'; cc++)
+    {
+        glutBitmapCharacter(font, *cc);
+
+    }
+    char *c;
+    for (c=String; *c != '\0'; c++)
+    {
+        glutBitmapCharacter(font, *c);
+    }
+}
+
+void rotateX(double theta, double &x, double &y, double &z)
+{
+    double dx, dy, dz;
+
+    theta = (PI / 180.0) * theta; // degree to radian
+
+    dx = x;
+    dy = y * cos(theta) - z * sin(theta);
+    dz = y * sin(theta) + z * cos(theta);
+
+    bxx = dx, byy = dy, bzz = dz;
+}
+
+void rotateY(double theta, double &x, double &y, double &z)
+{
+    double dx, dy, dz;
+
+    theta = (PI / 180.0) * theta; // degree to radian
+
+    dx = x * cos (theta) + z * sin(theta);
+    dy = y;
+    dz = -x * sin(theta) + z * cos(theta);
+
+    bxx = dx, byy = dy, bzz = dz;
+}
 void drawtree(int n)
 {
     if(n>0)
@@ -414,8 +426,10 @@ static void resize(int width, int height)
 }
 static void player(void)
 {
-    //glRotatef(prot,0,1,0);
+    //
     glTranslatef(plx,0,plz);
+    glRotatef(GunVRotate,0,0,1);
+    glRotatef(GunHRotate,0,1,0);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,19);
     glPushMatrix();
@@ -511,25 +525,50 @@ static void player(void)
     glDisable(GL_TEXTURE_2D);
 
     glPushMatrix();
+    glPushMatrix();
+
+    glPushMatrix();
+
     glRotatef(fanim,1,0,0);
     glPushMatrix();
     glTranslatef(1,20,-10);
     glScalef(0.5,0.5,10);
     drawCube();
     glPopMatrix();
+
     glPushMatrix();
     //glTranslatef(1,20,-100);
-    glBegin(GL_LINES);
     glColor3f(1,0,0);
+    glBegin(GL_LINES);
+
     glVertex3f(1.0f, 20.0f, -10.0f);
     glVertex3f(1.0f, 15.0f, -180.0f);
     glEnd();
     glPopMatrix();
+
+    glPopMatrix();
+
+    if(reset==true)
+    {
+        glPushMatrix();
+        glTranslatef(1,20,-10);
+
+        bz-=0.5;
+        glTranslatef(bx,by,bz);
+
+        glScalef(0.5,0.5,0.5);
+        drawCube();
+        glPopMatrix();
+    }
+
+
     glPushMatrix();
     glTranslatef(1,17.5,-7);
     glRotatef(45,1,0,0);
     glScalef(0.5,4,0.5);
     drawCube();
+    glPopMatrix();
+    glPopMatrix();
     glPopMatrix();
     glPopMatrix();
 }
@@ -685,6 +724,12 @@ static void house(void)
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
 }
+//static void sutro(double x1, double y1, double x2, double y2)
+//{
+//    double t;
+//    x=t*x1+(1-t)x2;
+//    y=t*y1+(1-t)y2;
+//}
 static void train_ground(void)
 {
     for (double i=10; i<=90; i+=10)
@@ -703,19 +748,56 @@ static void train_ground(void)
     for (double i=10,j=165; i<=50; i+=10,j+=30)
     {
         glPushMatrix();
-        if((j+movex[(int)((int)i/10)])>=225.5 && (j+movex[(int)((int)i/10)])<=237.5 && M)
+//        if((j+movex[(int)((int)i/10)])>=225.5 && (j+movex[(int)((int)i/10)])<=237.5)
+//        {
+//            glTranslatef(j+movex[(int)((int)i/10)],-20,i);
+//        }
+//        else
         {
-            glTranslatef(j+movex[(int)((int)i/10)],-20,i);
+//            rotateX(GunHRotate, bxx,byy,bzz);
+//            rotateY(GunVRotate, bxx,byy,bzz);
+//            sutro(230,20,bxx,byy);
+//            if( M)
+//            {
+//                glTranslatef(j+movex[(int)((int)i/10)],-30,i);
+//                //arrr[(int)i]=true;
+//            }
+//            else
+//            glTranslated(j+movex[(int)((int)i/10)],0,i);
+            //(plx>=j+movex[(int)((int)i/10)] && bx<=j+movex[(int)((int)i/10)]+15 )  &&
+
         }
-        else
+        if(arrr[(int)i])
+        {
+            glTranslatef(0,-20,0);
+            //M=true;
+        }
+        else if((j+movex[(int)((int)i/10)])>=220 && (j+movex[(int)((int)i/10)])<=240 && M && GunVRotate <5 && GunHRotate<5)
+        {
+            //Sleep(2);
+            glTranslatef(j+movex[(int)((int)i/10)],-20,i);
+            arrr[(int)i]=true;
+            M=false;
+            value++;
+        }
+        else if(!arrr[(int)i])
         {
             glTranslated(j+movex[(int)((int)i/10)],0,i);
+            //M=true;
         }
+
         if(p)
         {
             glTranslatef(0,20,0);
             p=false;
         }
+
+//        if(reset)
+//        {
+//            glTranslatef(0,30,0);
+//            reset=false;
+//            M=false;
+//        }
         glScalef(15, 20, 0.5);
         drawCube();
         glPopMatrix();
@@ -723,11 +805,42 @@ static void train_ground(void)
     for (double i=60,j=270; i<=90; i+=10,j-=30)
     {
         glPushMatrix();
-        glTranslated(j+movex[(int)((int)i/10)],0,i);
-        if((j+movex[(int)((int)i/10)])>=225.5 && (j+movex[(int)((int)i/10)])<=237.5 && M)
+
+        //plx>=j+movex[(int)((int)i/10)] && plx<=j+movex[(int)((int)i/10)]+15 )&&
+//        if( M )
+//        {
+//            glTranslatef(j+movex[(int)((int)i/10)],-30,i);
+//            //arrr[(int)i]=true;
+//        }
+//        else
+//            glTranslated(j+movex[(int)((int)i/10)],0,i);
+//        if(reset)
+//        {
+//            glTranslatef(0,30,0);
+//            reset=false;
+//            M=false;
+//        }
+        if(arrr[(int)i])
         {
             glTranslatef(0,-20,0);
+            //M=true;
         }
+        else if((j+movex[(int)((int)i/10)])>=220 && (j+movex[(int)((int)i/10)])<=240 && M && GunVRotate <5 && GunHRotate<5)
+        {
+            //Sleep(2);
+            glTranslatef(0,-20,0);
+            arrr[(int)i]=true;
+            M=false;
+            value++;
+            //
+        }
+        else if(!arrr[(int)i])
+        {
+            glTranslated(j+movex[(int)((int)i/10)],0,i);
+
+            //M=true;
+        }
+        //M=false;
         if(p)
         {
             glTranslatef(0,20,0);
@@ -762,6 +875,12 @@ static void train_ground(void)
             glBindTexture(GL_TEXTURE_2D,13);
             glPushMatrix();
             glTranslated(165+i-5,30,i);
+//            if(M && GunVRotate >10)
+//            {
+//                glRotatef(90,1,0,0);
+//                M=false;
+//                arrr2[i]=true;
+//            }
             glScalef(10, 10, 0.5);
             drawCube();
             glPopMatrix();
@@ -790,6 +909,13 @@ static void train_ground(void)
             glBindTexture(GL_TEXTURE_2D,13);
             glPushMatrix();
             glTranslated(299-105+i-7.5,30,i);
+//            if(M && GunVRotate >10)
+//            {
+//                glRotatef(90,1,0,0);
+//                M=false;
+//                arrr2[i]=true;
+//            }
+
             glScalef(10, 10, 0.5);
             drawCube();
             glPopMatrix();
@@ -798,7 +924,7 @@ static void train_ground(void)
     }
 
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,9);
+    glBindTexture(GL_TEXTURE_2D,24);
     glPushMatrix();
     glTranslatef(190,0,140);
     glScalef(85,10,5);
@@ -867,51 +993,99 @@ static void train_ground(void)
         glDisable(GL_TEXTURE_2D);
     }
 }
+static void pond(void)
+{
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,pnd);
+    glPushMatrix();
+    glTranslatef(-400,-0.5,-400);
+    glScalef(200,1,200);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
+    glPushMatrix();
+    glTranslatef(-150,10,-200);
+    glScalef(30,1,15);
+    drawCube(0,0,1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-150,10,-200);
+    glScalef(30,15,1);
+    drawCube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-145,0,-200);
+    glScalef(1,10,15);
+    drawCube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-120,0,-200);
+    glScalef(1,10,15);
+    drawCube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-30,0,30);
+    glScalef(1,30,1);
+    drawCube();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-30,30,30);
+    glScalef(20,1,1);
+    drawCube(1,0,0);
+    glPopMatrix();
+}
 static void MAP(void)
 {
 /// Floor
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,1);
     glPushMatrix();
-    glTranslatef(0,-1,0);
-    glScalef(300.0, 1.0, 300.0);
+    glTranslatef(-400,-1,-400);
+    glScalef(800.0, 1.0, 800.0);
     drawCube(1,1,1);
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
     {
 /// Left Wall
-//    glEnable(GL_TEXTURE_2D);
-//    glBindTexture(GL_TEXTURE_2D,9);
-//    glPushMatrix();
-//    glScalef(1.0, 100.0, 100.0);
-//    drawCube();
-//    glPopMatrix();
-//    glDisable(GL_TEXTURE_2D);
-/// Front Wall
-//    glEnable(GL_TEXTURE_2D);
-//    glBindTexture(GL_TEXTURE_2D,10);
-//    glPushMatrix();
-//    //glTranslatef(0,0,0);
-//    glScalef(200.0, 100.0, 1.0);
-//    drawCube();
-//    glPopMatrix();
-//    glDisable(GL_TEXTURE_2D);
-/// Right Wall
-//    glEnable(GL_TEXTURE_2D);
-//    glBindTexture(GL_TEXTURE_2D,10);
-//    glPushMatrix();
-//    glTranslatef(199, 0, 0);
-//    glScalef(1.0, 100.0, 100.0);
-//    drawCube();
-//    glPopMatrix();
-//    glDisable(GL_TEXTURE_2D);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,32);
+        glPushMatrix();
+        glTranslatef(-400,-1,-400);
+        glScalef(1.0, 800.0, 800.0);
+        drawCube();
+        glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
+// Front Wall
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,32);
+        glPushMatrix();
+        glTranslatef(-400,0,-400);
+        glScalef(800.0, 800.0, 1.0);
+        drawCube();
+        glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
+// Right Wall
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,32);
+        glPushMatrix();
+        glTranslatef(400, 0, -400);
+        glScalef(1.0, 800.0, 800.0);
+        drawCube();
+        glPopMatrix();
+        glDisable(GL_TEXTURE_2D);
     }
 /// Roof
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,11);
     glPushMatrix();
-    glTranslatef(-100, 100, -100);
-    glScalef(500.0, 1.0, 500.0);
+    glTranslatef(-500, 300, -500);
+    glScalef(1000.0, 1.0, 1000.0);
     drawCube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -919,8 +1093,8 @@ static void MAP(void)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,7);
     glPushMatrix();
-    glTranslatef(135,0,0);
-    glScalef(30.0, 0.5, 300.0);
+    glTranslatef(-25,0,-400);
+    glScalef(50.0, 0.5, 800.0);
     drawCube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -928,8 +1102,13 @@ static void MAP(void)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,8);
     glPushMatrix();
-    glTranslatef(0,0,135);
-    glScalef(135, 0.5, 30.0);
+    glTranslatef(-400,0,-25);
+    glScalef(375, 0.5, 50.0);
+    drawCube();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(25,0,-25);
+    glScalef(375, 0.5, 50.0);
     drawCube();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
@@ -940,33 +1119,70 @@ static void MAP(void)
 //    glPopMatrix();
     //glDisable(GL_TEXTURE_2D);
     glPushMatrix();
-    glTranslatef(0,-10,0);
+    glTranslatef(170,-5,280);
+    glRotatef(180,0,1,0);
     glScalef(1,0.6,1);
     house();
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(70,-10,0);
+    glTranslatef(280,-5,200);
+    glRotatef(-90,0,1,0);
     glScalef(1,0.6,1);
     house();
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(0,-10,135);
-    glRotatef(90,0,1,0);
+    glTranslatef(350,-5,200);
+    glRotatef(180,0,1,0);
     glScalef(1,0.6,1);
     house();
     glPopMatrix();
 
+//    glEnable(GL_TEXTURE_2D);
+//    glBindTexture(GL_TEXTURE_2D,10);
+//    glPushMatrix();
+//    glTranslatef(-375,0,300);
+//    glScalef(60,70,60);
+//    drawCube();
+//    glPopMatrix();
+//    glDisable(GL_TEXTURE_2D);
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,10);
+    glBindTexture(GL_TEXTURE_2D,28);
     glPushMatrix();
-    glTranslatef(0,0,235);
+    glTranslatef(-350,0,200);
     glScalef(60,70,60);
     drawCube();
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,29);
     glPushMatrix();
-    glTranslatef(0,0,165);
+    glTranslatef(-300,0,300);
+    glScalef(60,70,60);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,30);
+    glPushMatrix();
+    glTranslatef(-350,0,100);
+    glScalef(60,70,60);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,10);
+    glPushMatrix();
+    glTranslatef(-100,0,300);
+    glScalef(60,70,60);
+    drawCube();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,31);
+    glPushMatrix();
+    glTranslatef(-200,0,300);
     glScalef(60,70,60);
     drawCube();
     glPopMatrix();
@@ -976,7 +1192,7 @@ static void copter(void)
 {
     const double t = glutGet(GLUT_ELAPSED_TIME) / 5000.0;
     const double a = t*90.0;
-     glEnable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,22);
     if(wired)
     {
@@ -1151,70 +1367,60 @@ static void copter(void)
     drawCube(1,1,1);
     glPopMatrix();
 
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,23);
-    glPushMatrix();
-    glTranslatef(170,0,210);
-    glScalef(120,1,80);
-    drawCube(1,1,1);
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-
-
 }
 static void buildstair(double k)
 {
-        glPushMatrix();
-        glPushMatrix();
-        glTranslatef(100.0,k,255.0);
-        //glRotatef(-30,1,0,0);
-        glScalef(1.0,1.0,30.0);
-        drawCube(0,0,0);
-        glPopMatrix();
+    glPushMatrix();
+    glPushMatrix();
+    glTranslatef(100.0,k,255.0);
+    //glRotatef(-30,1,0,0);
+    glScalef(1.0,1.0,30.0);
+    drawCube(0,0,0);
+    glPopMatrix();
 
-        for(double i=255;i<=285;i+=5)
-        {
-            glPushMatrix();
-            glTranslatef(100.0,k,i);
-            glScalef(4,1,1);
-            drawCube();
-            glPopMatrix();
-        }
-
+    for(double i=255; i<=285; i+=5)
+    {
         glPushMatrix();
-        glTranslatef(104.0,k,255.0);
-        //glRotatef(-30,1,0,0);
-        glScalef(1.0,1.0,30.0);
-        drawCube(0,0,0);
+        glTranslatef(100.0,k,i);
+        glScalef(4,1,1);
+        drawCube();
         glPopMatrix();
-        glRotatef(-30,1,0,0);
-        glPopMatrix();
+    }
 
-        glPushMatrix();
-        //glRotatef(-30,1,0,0);
-        glPushMatrix();
-        glTranslatef(105.0,k+30,255.0);
-        //glRotatef(30,1,0,0);
-        glScalef(1.0,1.0,30.0);
-        drawCube(0,0,0);
-        glPopMatrix();
+    glPushMatrix();
+    glTranslatef(104.0,k,255.0);
+    //glRotatef(-30,1,0,0);
+    glScalef(1.0,1.0,30.0);
+    drawCube(0,0,0);
+    glPopMatrix();
+    glRotatef(-30,1,0,0);
+    glPopMatrix();
 
-        for(double i=255;i<=285;i+=5)
-        {
-            glPushMatrix();
-            glTranslatef(105.0,k,i);
-            glScalef(4,1,1);
-            drawCube();
-            glPopMatrix();
-        }
+    glPushMatrix();
+    //glRotatef(-30,1,0,0);
+    glPushMatrix();
+    glTranslatef(105.0,k+30,255.0);
+    //glRotatef(30,1,0,0);
+    glScalef(1.0,1.0,30.0);
+    drawCube(0,0,0);
+    glPopMatrix();
 
+    for(double i=255; i<=285; i+=5)
+    {
         glPushMatrix();
-        glTranslatef(109.0,k+30,255.0);
-        //glRotatef(30,1,0,0);
-        glScalef(1.0,1.0,30.0);
-        drawCube(0,0,0);
+        glTranslatef(105.0,k,i);
+        glScalef(4,1,1);
+        drawCube();
         glPopMatrix();
-        glPopMatrix();
+    }
+
+    glPushMatrix();
+    glTranslatef(109.0,k+30,255.0);
+    //glRotatef(30,1,0,0);
+    glScalef(1.0,1.0,30.0);
+    drawCube(0,0,0);
+    glPopMatrix();
+    glPopMatrix();
 }
 static void newbuild(void)
 {
@@ -1226,254 +1432,303 @@ static void newbuild(void)
         gg=i;
         kg=gg+18;
         if(i<90.0)
+        {
+            ///flr
+            glPushMatrix();
+            glTranslatef(80.0,i,240.0);
+            glScalef(20.0,1.0,50.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+
+            glPushMatrix();
+            glTranslatef(110.0,i,240.0);
+            glScalef(20.0,1.0,50.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D,25);
+            glPushMatrix();
+            ///r8wall
+            glTranslatef(80.0,i,240.0);
+            glScalef(1.0,30.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(80.0,i,250.0);
+            glScalef(1.0,10.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(80.0,i+20,250.0);
+            glScalef(1.0,10.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(80.0,i,260.0);
+            glScalef(1.0,30.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(80.0,i,270.0);
+            glScalef(1.0,10.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(80.0,i+20,270.0);
+            glScalef(1.0,10.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(80.0,i,280.0);
+            glScalef(1.0,30.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glDisable(GL_TEXTURE_2D);
+            ///leftwall
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D,26);
+            glPushMatrix();
+            glTranslatef(129.0,i,240.0);
+            glScalef(1.0,30.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(129.0,i,250.0);
+            glScalef(1.0,10.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(129.0,i+20,250.0);
+            glScalef(1.0,10.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(129.0,i,260.0);
+            glScalef(1.0,30.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(129.0,i,270.0);
+            glScalef(1.0,10.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(129.0,i+20,270.0);
+            glScalef(1.0,10.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(129.0,i,280.0);
+            glScalef(1.0,30.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glDisable(GL_TEXTURE_2D);
+            ///backwall
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D,27);
+            glPushMatrix();
+            glTranslatef(80.0,i,289.0);
+            glScalef(50.0,30.0,1.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glDisable(GL_TEXTURE_2D);
+            ///frntwall
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D,27);
+            glPushMatrix();
+            glTranslatef(80.0,i,240.0);
+            glScalef(5.0,30.0,1.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(85.0,i,240.0);
+            glScalef(10.0,10.0,1.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(85.0,i+20,240.0);
+            glScalef(10.0,10.0,1.0);
+            drawCube(0,0,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(95.0,i,240.0);
+            glScalef(5.0,30.0,1.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+
+            glPushMatrix();
+            glTranslatef(110.0,i,240.0);
+            glScalef(5.0,30.0,1.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(115.0,i,240.0);
+            glScalef(10.0,10.0,1.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(115.0,i+20,240.0);
+            glScalef(10.0,10.0,1.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(125.0,i,240.0);
+            glScalef(5.0,30.0,1.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glDisable(GL_TEXTURE_2D);
+            ///mid2
+            glPushMatrix();
+            glTranslatef(110.0,i,250.0);
+            glRotatef(90,0,1,0);
+            glScalef(1.0,20.0,5.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            ///mid1
+            glPushMatrix();
+            glTranslatef(99.0,i,255.0);
+            glScalef(1.0,30.0,35.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(99.0,i,250.0);
+            glRotatef(-90,0,1,0);
+            glScalef(1.0,20.0,5.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(99.0,i+20,250.0);
+            glScalef(1.0,10.0,5.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(99.0,i,240.0);
+            glScalef(1.0,30.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            ///mid2
+            glPushMatrix();
+            glTranslatef(110.0,i,255.0);
+            glScalef(1.0,30.0,35.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+
+            glPushMatrix();
+            glTranslatef(110.0,i,240.0);
+            glScalef(1.0,30.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(110.0,i+20,250.0);
+            glScalef(1.0,10.0,5.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            ///stair
+            glPushMatrix();
+            glTranslatef(100.0,i,255.0);
+            glRotatef(-30,1,0,0);
+            glScalef(1.0,1.0,30.0);
+            drawCube(0,0,0);
+            glPopMatrix();
+
+            glPushMatrix();
+            glTranslatef(104.0,i,255.0);
+            glRotatef(-30,1,0,0);
+            glScalef(1.0,1.0,30.0);
+            drawCube(0,0,0);
+            glPopMatrix();
+
+            glPushMatrix();
+            glTranslatef(105.0,i+30,255.0);
+            glRotatef(30,1,0,0);
+            glScalef(1.0,1.0,30.0);
+            drawCube(0,0,0);
+            glPopMatrix();
+
+            glPushMatrix();
+            glTranslatef(109.0,i+30,255.0);
+            glRotatef(30,1,0,0);
+            glScalef(1.0,1.0,30.0);
+            drawCube(0,0,0);
+            glPopMatrix();
+            for(double j=255; j<=275; j+=5,gg+=3)
             {
-                ///flr
                 glPushMatrix();
-        glTranslatef(80.0,i,240.0);
-        glScalef(20.0,1.0,50.0);
-        drawCube(1,1,1);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslatef(110.0,i,240.0);
-        glScalef(20.0,1.0,50.0);
-        drawCube(1,1,1);
-        glPopMatrix();
-        glPushMatrix();
-        ///r8wall
-        glTranslatef(80.0,i,240.0);
-        glScalef(1.0,30.0,10.0);
-        drawCube(1,1,0);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(80.0,i,250.0);
-        glScalef(1.0,10.0,10.0);
-        drawCube(1,1,0);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(80.0,i+20,250.0);
-        glScalef(1.0,10.0,10.0);
-        drawCube(1,1,0);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(80.0,i,260.0);
-        glScalef(1.0,30.0,10.0);
-        drawCube(1,1,0);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(80.0,i,270.0);
-        glScalef(1.0,10.0,10.0);
-        drawCube(1,1,0);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(80.0,i+20,270.0);
-        glScalef(1.0,10.0,10.0);
-        drawCube(1,1,0);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(80.0,i,280.0);
-        glScalef(1.0,30.0,10.0);
-        drawCube(1,1,0);
-        glPopMatrix();
-        ///leftwall
-        glPushMatrix();
-        glTranslatef(129.0,i,240.0);
-        glScalef(1.0,30.0,10.0);
-        drawCube(1,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(129.0,i,250.0);
-        glScalef(1.0,10.0,10.0);
-        drawCube(1,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(129.0,i+20,250.0);
-        glScalef(1.0,10.0,10.0);
-        drawCube(1,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(129.0,i,260.0);
-        glScalef(1.0,30.0,10.0);
-        drawCube(1,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(129.0,i,270.0);
-        glScalef(1.0,10.0,10.0);
-        drawCube(1,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(129.0,i+20,270.0);
-        glScalef(1.0,10.0,10.0);
-        drawCube(1,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(129.0,i,280.0);
-        glScalef(1.0,30.0,10.0);
-        drawCube(1,0,1);
-        glPopMatrix();
-        ///backwall
-        glPushMatrix();
-        glTranslatef(80.0,i,289.0);
-        glScalef(50.0,30.0,1.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        ///frntwall
-        glPushMatrix();
-        glTranslatef(80.0,i,240.0);
-        glScalef(5.0,30.0,1.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(85.0,i,240.0);
-        glScalef(10.0,10.0,1.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(85.0,i+20,240.0);
-        glScalef(10.0,10.0,1.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(95.0,i,240.0);
-        glScalef(5.0,30.0,1.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslatef(110.0,i,240.0);
-        glScalef(5.0,30.0,1.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(115.0,i,240.0);
-        glScalef(10.0,10.0,1.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(115.0,i+20,240.0);
-        glScalef(10.0,10.0,1.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(125.0,i,240.0);
-        glScalef(5.0,30.0,1.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        ///mid2
-        glPushMatrix();
-        glTranslatef(110.0,i,250.0);
-        glRotatef(90,0,1,0);
-        glScalef(1.0,20.0,5.0);
-        drawCube(0,1,1);
-        glPopMatrix();
-        ///mid1
-        glPushMatrix();
-        glTranslatef(99.0,i,255.0);
-        glScalef(1.0,30.0,35.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(99.0,i,250.0);
-        glRotatef(-90,0,1,0);
-        glScalef(1.0,20.0,5.0);
-        drawCube(0,1,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(99.0,i+20,250.0);
-        glScalef(1.0,10.0,5.0);
-        drawCube(0,1,0);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(99.0,i,240.0);
-        glScalef(1.0,30.0,10.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        ///mid2
-        glPushMatrix();
-        glTranslatef(110.0,i,255.0);
-        glScalef(1.0,30.0,35.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslatef(110.0,i,240.0);
-        glScalef(1.0,30.0,10.0);
-        drawCube(0,0,1);
-        glPopMatrix();
-        glPushMatrix();
-        glTranslatef(110.0,i+20,250.0);
-        glScalef(1.0,10.0,5.0);
-        drawCube(0,1,0);
-        glPopMatrix();
-        ///stair
-        glPushMatrix();
-        glTranslatef(100.0,i,255.0);
-        glRotatef(-30,1,0,0);
-        glScalef(1.0,1.0,30.0);
-        drawCube(0,0,0);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslatef(104.0,i,255.0);
-        glRotatef(-30,1,0,0);
-        glScalef(1.0,1.0,30.0);
-        drawCube(0,0,0);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslatef(105.0,i+30,255.0);
-        glRotatef(30,1,0,0);
-        glScalef(1.0,1.0,30.0);
-        drawCube(0,0,0);
-        glPopMatrix();
-
-        glPushMatrix();
-        glTranslatef(109.0,i+30,255.0);
-        glRotatef(30,1,0,0);
-        glScalef(1.0,1.0,30.0);
-        drawCube(0,0,0);
-        glPopMatrix();
-        for(double j=255; j<=275; j+=5,gg+=3)
-        {
+                glTranslatef(100,gg,j);
+                glScalef(5.0, 1.0, 1.0);
+                drawCube();
+                glPopMatrix();
+            }
+            for(double j=275; j>=255; j-=5,kg+=3)
+            {
+                glPushMatrix();
+                glTranslatef(105,kg,j);
+                glScalef(5.0, 1.0, 1.0);
+                drawCube();
+                glPopMatrix();
+            }
+            ///mid
             glPushMatrix();
-            glTranslatef(100,gg,j);
-            glScalef(5.0, 1.0, 1.0);
-            drawCube();
+            glTranslatef(100.0,i,240.0);
+            glScalef(10.0,1.0,15.0);
+            drawCube(1,1,1);
             glPopMatrix();
-        }
-        for(double j=275; j>=255; j-=5,kg+=3)
-        {
-            glPushMatrix();
-            glTranslatef(105,kg,j);
-            glScalef(5.0, 1.0, 1.0);
-            drawCube();
-            glPopMatrix();
-        }
-        ///mid
-        glPushMatrix();
-        glTranslatef(100.0,i,240.0);
-        glScalef(10.0,1.0,15.0);
-        drawCube(1,0,0);
-        glPopMatrix();
             ///stairmid
-        glPushMatrix();
-        glTranslatef(100.0,i+15,280.0);
-        glScalef(10.0,1.0,10.0);
-        drawCube(1,1,0);
-        glPopMatrix();
+            glPushMatrix();
+            glTranslatef(100.0,i+15,280.0);
+            glScalef(10.0,1.0,10.0);
+            drawCube(1,1,1);
+            glPopMatrix();
 
         }
         else
         {
+            if(i==90)
+            {
+                glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D,36);
+            }
             glPushMatrix();
-        glTranslatef(80.0,i,240.0);
-        glScalef(50.0,1.0,50.0);
-        drawCube(1,1,1);
-        glPopMatrix();
+            glTranslatef(80.0,i,240.0);
+            glScalef(50.0,1.0,50.0);
+            drawCube(1,1,1);
+            glPopMatrix();
+            if(i==90)
+            {
+                glDisable(GL_TEXTURE_2D);
+            }
 
         }
 
     }
+}
+static void tank(void)
+{
+    glTranslatef(tnx,0,tnz);
+    glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,22);
+    glPushMatrix();
+    glTranslatef(100,0,-100);
+    glScalef(40,20,30);
+    drawCube();
+    glPopMatrix();
+
+
+    glPushMatrix();
+    glTranslatef(110,20,-95);
+    glScalef(20,10,20);
+    drawCube();
+    glPopMatrix();
+    glPushMatrix();
+    glPushMatrix();
+    glTranslatef(130,24,-86);
+    glRotatef(trot,0,1,0);
+    glScalef(30,1,2);
+    drawCube();
+    glPopMatrix();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 }
 static void display(void)
 {
@@ -1487,27 +1742,72 @@ static void display(void)
     glLoadIdentity();
     gluLookAt(eyeX,eyeY,eyeZ, lookX,lookY,lookZ, 0,1,0);
 
-    //glRotatef(hrot/10,0,1,0);
+    //
 
     glTranslatef(-plx,0,-plz);
-    glTranslatef(-hlx,-hly,-hlz);
-    MAP();
-    train_ground();
+    //glTranslatef(-hlx,-hly,-hlz);
+    glRotatef(rot,0,1,0);
+
+//    glColor3f(1.0, 0.0, 0.0);
+//    glBegin(GL_POLYGON);
+//        glVertex3f(1, 1, 1);
+//        glVertex3f(1, 1, 1);
+//        glVertex3f(1, 1, 1);
+//        glVertex3f(1, 1, 1);
+//    glEnd();
 
     glPushMatrix();
-    glTranslatef(230,0,175);
-    player();
+    MAP();
     glPopMatrix();
 
+    glPushMatrix();
+    glTranslatef(0,0,-375);
+    train_ground();
+    glPopMatrix();
 
+    glPushMatrix();
+    glTranslatef(225,0,-200);
+    player();
+    glPopMatrix();
+    sprintf(result, "%d", value);
+    glColor3f(1.0, 0.0, 0.0);
+    renderBitmapString(200, 150, -375, GLUT_BITMAP_TIMES_ROMAN_24, " Target Down");
 
     glPushMatrix();
     //glRotatef(hrot,0,1,0);
+    glTranslatef(20,0,-360);
     glTranslatef(hlx,hly,hlz);
-
+    //glRotatef(hrot,0,1,0);
     copter();
     glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(20,0,-360);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,23);
+    glPushMatrix();
+    glTranslatef(170,0,210);
+    glScalef(120,1,80);
+    drawCube(1,1,1);
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-415,0,-200);
     newbuild();
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(-180,0,-50);
+    newbuild();
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(-280,0,-50);
+    newbuild();
+    glPopMatrix();
+    pond();
+    tank();
     //treeInit(15);
     glutSwapBuffers();
 }
@@ -1584,43 +1884,43 @@ static void key(unsigned char key, int x, int y)
 //        anglez = ( anglez - 3 ) % 360;
 //        break;
     case 't':
-        lookY += 1.5;
+        lookY += 2.5;
         break;
     case 'g':
-        lookY -= 1.5;
+        lookY -= 2.5;
         break;
     case 'h':
-        lookX += 1.5;
+        lookX += 2.5;
         break;
     case 'f':
-        lookX -= 1.5;
+        lookX -= 2.5;
         break;
     case 'u':
-        lookZ += 1.5;
+        lookZ += 2.5;
         break;
     case 'y':
-        lookZ -= 1.5;
+        lookZ -= 2.5;
         break;
     case 'w':
-        eyeY += 0.5;
+        eyeY += 1;
         break;
     case 's':
-        eyeY -= 0.5;
+        eyeY -= 1;
         break;
     case 'a':
-        eyeX += 0.5;
+        eyeX += 1;
         break;
     case 'd':
-        eyeX -= 0.5;
+        eyeX -= 1;
         break;
     case 'e':
-        eyeZ += 0.5;
+        eyeZ += 1;
         break;
     case 'r':
-        eyeZ -= 0.5;
+        eyeZ -= 1;
         break;
     case '+':
-        prot++;
+        rot++;
         //lookX-=5;
         //eyeX-=5;
         break;
@@ -1636,10 +1936,12 @@ static void key(unsigned char key, int x, int y)
         else
             fanim=.4;
     }
+    bz=0;
     M=true;
+    reset=true;
     break;
     case '-':
-        prot--;
+        rot--;
         //lookX+=5;
         //eyeX+=5;
         break;
@@ -1684,6 +1986,10 @@ static void key(unsigned char key, int x, int y)
         break;
     case 'p':
         p= true;
+        //reset=true;
+        value=0;
+        memset(arrr,0,sizeof(arrr));
+        memset(arrr2,0,sizeof(arrr2));
         M=false;
         break;
     case 'z':
@@ -1696,20 +2002,22 @@ static void key(unsigned char key, int x, int y)
         specular = !specular;
         break;
     case 'v':
-        eyeX=233;
-        eyeY=23;
-        eyeZ=175;
-        lookX=230;
-        lookY=50;
-        lookZ=0;
+        eyeX=225;
+        eyeY=30;
+        eyeZ=-200;
+        lookX=200;
+        lookY=20;
+        lookZ=-500;
+        rot=0;
         break;
     case 'b':
-        eyeX=320;
+        eyeX=0;
         eyeY=50;
-        eyeZ=170;
+        eyeZ=0;
         lookX=100;
-        lookY=50;
-        lookZ=80;
+        lookY=40;
+        lookZ=-100;
+        rot=0;
         break;
     case 'l':
         plx++;
@@ -1751,19 +2059,81 @@ static void key(unsigned char key, int x, int y)
         hlz--;
         //eyeZ--;
         break;
-//    case 'M':
-//        hrot=90;
-//        //eyeZ++;
-//        break;
-//    case 'N':
-//        hrot=90;
-//        //eyeZ--;
-//        break;
+    case 'M':
+        hrot++;
+        //eyeZ++;
+        break;
+    case 'N':
+        hrot--;
+        //eyeZ--;
+        break;
+    case 'W':
+        tnx++;
+        //eyeZ--;
+        break;
+    case 'S':
+        tnx--;
+        //eyeX++;
+        break;
+    case 'A':
+        tnz--;
+        //eyeX--;
+        break;
+    case 'D':
+        tnz++;
+        //eyeZ++;
+        break;
+    case 'Z':
+        //rot=0;
+        trot--;
+        //eyeZ--;
+        break;
+    case 'X':
+        //rot=0;
+
+        trot++;
+        //eyeZ--;
+        break;
     }
 
     glutPostRedisplay();
 }
 
+void mousePassive(int mousex, int mousey)
+{
+    if(mousex >= 0  && mousex <= width &&
+            mousey >= 0 && mousey <= height)
+    {
+        if(abs(mousex-prev_mousex) > 0.1)
+            if(mousex > prev_mousex)
+            {
+                if(GunHRotate >= -50)
+                    GunHRotate -= 2;
+            }
+            else
+            {
+                if(GunHRotate <= 50)
+                    GunHRotate += 2;
+            }
+
+        if(abs(mousey-prev_mousey) > 0.1)
+            if(mousey > prev_mousey)
+            {
+                if(GunVRotate <= 50)
+                    GunVRotate += 2;
+            }
+            else
+            {
+                if(GunVRotate >= -50)
+                    GunVRotate -= 2;
+            }
+    }
+
+    prev_mousex = mousex;
+    prev_mousey = mousey;
+
+    glutPostRedisplay();
+}
 static void idle(void)
 {
     glutPostRedisplay();
@@ -1848,7 +2218,7 @@ static void light()
     GLfloat light_ambient3[]  = {0.5, 0.3, 0.7, 1.0};
     GLfloat light_diffuse3[]  = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat light_specular3[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat light_position3[] = { 230, 100, 160, 1.0 };
+    GLfloat light_position3[] = { 0, 100, 0, 1.0 };
 
     //glEnable( GL_LIGHT2);
     if(ambient)
@@ -1889,6 +2259,22 @@ static void light()
 /* Program entry point */
 void animate()
 {
+    if(pnd==0)
+    {
+        pnd=33;
+    }
+    else if(pnd==33)
+    {
+        pnd=34;
+    }
+    else if(pnd==34)
+    {
+        pnd=35;
+    }
+    else if(pnd==35)
+    {
+        pnd=33;
+    }
     heli+=2;
     if(heli>360)
         heli=0;
@@ -2075,7 +2461,7 @@ int main(int argc, char *argv[])
     glutInitWindowPosition(10,10);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-    glutCreateWindow("Mortal Shooting");
+    glutCreateWindow("Shooting Game");
 
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\grass.bmp");
 
@@ -2104,12 +2490,28 @@ int main(int argc, char *argv[])
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\skin3.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\army2.bmp");
     LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\helipad.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\wall11.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\wall2.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\wall4.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\wall8.bmp");
+
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\building3.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\building4.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\building5.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\building6.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\sky6.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\water.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\water3.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\water2.bmp");
+    LoadTexture("F:\\Study\\4.2\\Texture Image\\BMP\\roof3.bmp");
+
 
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
     glutKeyboardFunc(key);
     glutIdleFunc(idle);
     glutIdleFunc(animate);
+    glutPassiveMotionFunc(mousePassive);
     //glutMouseFunc(my_mouse);
     light();
 
@@ -2118,6 +2520,29 @@ int main(int argc, char *argv[])
     glEnable(GL_NORMALIZE);
     glEnable(GL_BLEND);
     glEnable(GL_LIGHTING);
+
+    printf("########################################################################################\n");
+    printf("########################################################################################\n");
+    printf("##############                                                         #################\n");
+    printf("##############           PLEASE FOLLOW THE BELOW INSTRUCTIONS          #################\n");
+    printf("##############                                                         #################\n");
+    printf("########################################################################################\n");
+    printf("########################################################################################\n\n\n");
+    printf("Use 't' to look up,\n 'g' to look down,\n 'f' to look right,\n and 'h' to look left.\n\n");
+    printf("Use 'e' to move camera front (i.e. zoom in),\n 'r' to move camera back (i.e. zoom out),\n 'a' to move camera right,\n and 'd' to move camera left.\n\n");
+    printf("Use 'w' to move camera up\n and 's' to move camera down.\n\n");
+    printf("Use 't' to toggle window open or close.\n\n");
+    printf("Use 'v' to First person Mode,\n and 'b' to Third Person Mode.\n\n");
+    printf("Use '+' to rotate left,\n and '-' to rotate right taking the look at point as center.\n\n");
+    printf("Use 'm' to fire.\n Use 'p' to reset game.\n\n");
+    printf("Use 'i' to move player forward up\n and 'k' to move player back.\n and 'j' to move player left.\nand 'l' to move player right.\n\n\n\n");
+    printf("Use 'I' to move Helicopter forward up\n and 'H' to move helicopter back.\n and 'J' to move helicopter left.\nand 'L' to move helicopter right.\n\n\n\n");
+    printf("Use 'W' to move Tank forward up\n and 'S' to move Tank back.\n and 'A' to move Tank left.\nand 'D' to move Tank right.\n\n\n\n");
+    printf("Use 'Z' to tank gun rotate,\n and 'X' to Tank gun rotate.\n\n");
+    printf("Use '5' to see curve wiring n\n");
+    printf("Use 'F' to toggle the fan on-off.\n\n");
+    printf("Use '1' and '2' to toggle tube lights switches,\n and '3' to toggle the spotlight.\n\n");
+    printf("Use 'z' to toggle ambient,\n 'x' to toggle diffusion,\n and 'c' to toggle specular light property for all lights.\n\n\n\n");
 
     glutMainLoop();
 
